@@ -1,0 +1,189 @@
+# Romanian national regulations. Verify thresholds against the linked sources.
+regulations:
+  - code: RO_LAW_190_2018
+    name: Law no. 190/2018 implementing the GDPR
+    short_name: Law 190/2018
+    jurisdiction: RO
+    category: Data protection
+    authority: Autoritatea Națională de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP)
+    source_url: https://www.dataprotection.ro/
+    summary: >
+      Romanian measures implementing the GDPR, including special conditions for
+      processing national identification numbers (CNP) and for monitoring employees
+      by electronic means or video.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: RO }, { field: processes_personal_data, op: truthy } ] }
+          reason: You process personal data in Romania.
+    requirements:
+      - key: cnp
+        title: Safeguards for national identification numbers (CNP)
+        reference: Art. 4
+        weight: 2
+        description: Where CNP or ID documents are processed based on legitimate interest, implement appropriate safeguards, set retention periods, train staff and appoint a DPO.
+        evidence_hint: Assessment of CNP processing, DPO appointment.
+      - key: employee_monitoring
+        title: Employee monitoring by electronic means
+        reference: Art. 5
+        weight: 2
+        description: Monitoring employees by electronic means or video requires a documented legitimate interest, prior information and consultation of employee representatives, and a retention period of no more than 30 days unless justified.
+        evidence_hint: Monitoring policy, consultation records.
+      - key: dpo_notification
+        title: DPO notification to ANSPDCP
+        reference: Art. 37(7) GDPR
+        weight: 1
+        description: Communicate the DPO's contact details to ANSPDCP where a DPO is appointed.
+        evidence_hint: Notification confirmation.
+
+  - code: RO_NIS2
+    name: Emergency Ordinance no. 155/2024 (NIS2 transposition)
+    short_name: NIS2 (RO)
+    jurisdiction: RO
+    category: Cybersecurity
+    authority: Directoratul Național de Securitate Cibernetică (DNSC)
+    source_url: https://dnsc.ro/
+    summary: >
+      Romanian transposition of NIS2. Essential and important entities must register
+      with DNSC, implement cybersecurity risk-management measures and report
+      significant incidents.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: RO }, { field: medium_or_larger, op: truthy }, { field: nis2_annex, op: in, value: [I, II] } ] }
+          reason: You are a {size_class} company in Romania in a NIS2 sector (Annex {nis2_annex}).
+    requirements:
+      - key: registration
+        title: Notification / registration with DNSC
+        weight: 3
+        description: Notify DNSC of your status as an essential or important entity and keep the information up to date.
+        evidence_hint: DNSC registration confirmation.
+      - key: responsible
+        title: Cybersecurity responsible person
+        weight: 2
+        description: Designate the person(s) responsible for network and information security and communicate them to DNSC.
+        evidence_hint: Internal decision, DNSC communication.
+      - key: risk_assessment
+        title: Risk assessment and security measures
+        weight: 3
+        description: Perform a cybersecurity risk assessment and implement the risk-management measures required by NIS2 Art. 21 and DNSC rules.
+        evidence_hint: Risk assessment, security policies.
+      - key: reporting
+        title: Incident reporting to DNSC
+        weight: 3
+        description: Report significant incidents to the national CSIRT within the NIS2 deadlines (24h / 72h / one month).
+        evidence_hint: Incident reporting procedure.
+      - key: management_training
+        title: Management responsibility and training
+        weight: 2
+        description: Management bodies approve security measures, oversee implementation and attend cybersecurity training.
+        evidence_hint: Board decision, training records.
+
+  - code: RO_LAW_361_2022
+    name: Law no. 361/2022 on the protection of whistleblowers
+    short_name: Law 361/2022
+    jurisdiction: RO
+    category: Corporate governance
+    authority: Agenția Națională de Integritate (ANI)
+    source_url: https://www.integritate.eu/
+    summary: >
+      Romanian transposition of the Whistleblower Directive. Private legal entities with
+      at least 50 employees must establish internal reporting channels and procedures.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: RO }, { field: employees, op: gte, value: 50 } ] }
+          reason: You employ {employees} people and operate in Romania (threshold 50).
+        - when: { all: [ { field: countries, op: contains, value: RO }, { field: financial_entity, op: truthy } ] }
+          reason: Financial-sector entities need reporting channels regardless of size.
+    requirements:
+      - key: channel
+        title: Internal reporting channel
+        weight: 3
+        description: Establish internal reporting channels and designate an impartial person or department to receive and follow up on reports.
+        evidence_hint: Internal procedure, designation decision.
+      - key: deadlines
+        title: Acknowledgement and feedback deadlines
+        weight: 2
+        description: Acknowledge reports within seven calendar days and provide feedback within three months (extendable to six months in justified cases).
+        evidence_hint: Case log.
+      - key: information
+        title: Information for employees
+        weight: 1
+        description: Publish information on internal procedures and on external reporting to the competent authorities.
+        evidence_hint: Intranet page, website notice.
+
+  - code: RO_LAW_129_2019
+    name: Law no. 129/2019 on preventing and combating money laundering
+    short_name: Law 129/2019
+    jurisdiction: RO
+    category: Anti-money laundering
+    authority: Oficiul Național de Prevenire și Combatere a Spălării Banilor (ONPCSB)
+    source_url: https://www.onpcsb.ro/
+    summary: >
+      Romanian AML/CFT law for reporting entities. All legal entities registered with the
+      Trade Register also have to declare their beneficial owners.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: RO }, { field: aml_obliged, op: truthy } ] }
+          reason: You are a reporting entity under Romanian AML law.
+    requirements:
+      - key: risk_assessment
+        title: Risk assessment
+        weight: 3
+        description: Identify and assess money-laundering and terrorist-financing risks, documented and kept up to date.
+        evidence_hint: Risk assessment.
+      - key: compliance_officer
+        title: Designated persons and compliance officer
+        weight: 2
+        description: Designate persons responsible for applying the law and a compliance officer, and notify ONPCSB.
+        evidence_hint: Designation decision, ONPCSB notification.
+      - key: kyc
+        title: Customer due diligence
+        weight: 3
+        description: Identify and verify customers and beneficial owners, apply enhanced measures for high-risk customers and PEPs.
+        evidence_hint: KYC procedure.
+      - key: reporting
+        title: Reports to ONPCSB
+        weight: 2
+        description: Submit suspicious transaction reports and cash transaction reports (EUR 10,000 equivalent and above) to ONPCSB.
+        evidence_hint: Reporting procedure.
+      - key: beneficial_owner
+        title: Beneficial owner declaration
+        weight: 1
+        description: Declare beneficial owners to the Trade Register (ONRC) and update the declaration whenever they change.
+        evidence_hint: ONRC declaration.
+
+  - code: RO_EFACTURA
+    name: RO e-Factura, RO e-Transport and SAF-T reporting
+    short_name: RO e-Factura
+    jurisdiction: RO
+    category: Tax compliance
+    authority: Agenția Națională de Administrare Fiscală (ANAF)
+    source_url: https://www.anaf.ro/
+    summary: >
+      Romanian mandatory e-invoicing through the national RO e-Factura system for B2B
+      and B2C transactions, e-Transport declarations for goods with high fiscal risk,
+      and standard audit file for tax (SAF-T, form D406).
+    applicability:
+      triggers:
+        - when: { field: countries, op: contains, value: RO }
+          reason: You operate in Romania and are subject to Romanian e-invoicing.
+    requirements:
+      - key: spv
+        title: SPV registration
+        weight: 2
+        description: Register in ANAF's Virtual Private Space (SPV) and set up access for invoicing.
+        evidence_hint: SPV access confirmation.
+      - key: einvoicing
+        title: Transmission of e-invoices
+        weight: 3
+        description: Issue invoices in the RO e-Factura format (CIUS-RO) and transmit them within the legal deadline (five working days after issue).
+        evidence_hint: ERP integration documentation, transmission logs.
+      - key: etransport
+        title: RO e-Transport for high-risk goods
+        weight: 2
+        description: Declare transports of goods with high fiscal risk in RO e-Transport and obtain the UIT code before transport.
+        evidence_hint: Procedure, sample declarations.
+      - key: saft
+        title: SAF-T (D406) reporting
+        weight: 2
+        description: Submit the standard audit file for tax (D406) at the required frequency.
+        evidence_hint: Filing confirmations.

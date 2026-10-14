@@ -1,0 +1,91 @@
+# Curated regulatory updates shown in the dashboard feed. In the MVP these are
+# maintained by hand; later they can be fed by a monitoring job (EUR-Lex RSS,
+# BSI, DNSC, ANAF, ...). Always verify against the source before relying on them.
+updates:
+  - key: ai-act-high-risk-omnibus
+    regulation_code: EU_AI_ACT
+    title: Digital Omnibus proposes to adjust the high-risk AI timeline
+    summary: >
+      The European Commission's Digital Omnibus package proposes linking the start of
+      high-risk AI obligations to the availability of harmonised standards and support
+      tools. Check the adopted timeline before planning your conformity work.
+    published_on: 2025-11-19
+    kind: amendment
+    severity: important
+    source_url: https://digital-strategy.ec.europa.eu/
+  - key: aml-amlr-2027
+    regulation_code: EU_AML
+    title: EU AML Regulation applies from 10 July 2027
+    summary: >
+      The directly applicable AML Regulation (EU) 2024/1624 replaces most national AML
+      rules. Obliged entities should start gap analyses of their KYC and risk procedures.
+    published_on: 2024-06-19
+    effective_on: 2027-07-10
+    kind: deadline
+    severity: important
+    source_url: https://eur-lex.europa.eu/eli/reg/2024/1624/oj
+  - key: csrd-stop-the-clock
+    regulation_code: EU_CSRD
+    title: '"Stop-the-clock" postpones CSRD reporting for wave 2 and 3 companies'
+    summary: >
+      Directive (EU) 2025/794 postponed CSRD reporting by two years for companies that
+      had not yet started reporting and delayed CSDDD application. The Omnibus I
+      simplification further narrowed the scope.
+    published_on: 2025-04-16
+    kind: amendment
+    severity: important
+    source_url: https://eur-lex.europa.eu/eli/dir/2025/794/oj
+  - key: ai-act-gpai
+    regulation_code: EU_AI_ACT
+    title: AI Act obligations for general-purpose AI models apply
+    summary: >
+      Providers of general-purpose AI models must provide technical documentation,
+      a copyright policy and a summary of training content.
+    published_on: 2025-08-02
+    effective_on: 2025-08-02
+    kind: deadline
+    severity: info
+    source_url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+  - key: ai-act-prohibitions
+    regulation_code: EU_AI_ACT
+    title: AI Act prohibitions and AI literacy obligation in force
+    summary: >
+      Since 2 February 2025, prohibited AI practices are banned and organisations using
+      AI must ensure an adequate level of AI literacy of their staff.
+    published_on: 2025-02-02
+    effective_on: 2025-02-02
+    kind: deadline
+    severity: critical
+    source_url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+  - key: dora-applies
+    regulation_code: EU_DORA
+    title: DORA applies to financial entities
+    summary: >
+      Since 17 January 2025, financial entities must comply with DORA, including the
+      register of information on ICT third-party arrangements.
+    published_on: 2025-01-17
+    effective_on: 2025-01-17
+    kind: deadline
+    severity: critical
+    source_url: https://eur-lex.europa.eu/eli/reg/2022/2554/oj
+  - key: ro-efactura-b2c
+    regulation_code: RO_EFACTURA
+    title: RO e-Factura mandatory for B2C invoices
+    summary: >
+      Since 1 January 2025, invoices issued to consumers also have to be transmitted
+      through the RO e-Factura system.
+    published_on: 2025-01-01
+    effective_on: 2025-01-01
+    kind: deadline
+    severity: important
+    source_url: https://www.anaf.ro/
+  - key: ro-nis2-oug-155
+    regulation_code: RO_NIS2
+    title: Romania transposes NIS2 with Emergency Ordinance 155/2024
+    summary: >
+      Romania transposed NIS2 by emergency ordinance. Entities in NIS2 sectors must
+      notify DNSC and implement the required security measures.
+    published_on: 2024-12-31
+    kind: amendment
+    severity: important
+    source_url: https://dnsc.ro/

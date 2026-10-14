@@ -1,0 +1,236 @@
+# German national regulations. Verify thresholds against the linked sources.
+regulations:
+  - code: DE_BDSG
+    name: Bundesdatenschutzgesetz (BDSG)
+    short_name: BDSG
+    jurisdiction: DE
+    category: Data protection
+    authority: BfDI and state data protection authorities
+    source_url: https://www.gesetze-im-internet.de/bdsg_2018/
+    summary: >
+      German Federal Data Protection Act supplementing the GDPR, e.g. stricter rules on
+      appointing a data protection officer, employee data and video surveillance.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: DE }, { field: processes_personal_data, op: truthy } ] }
+          reason: You process personal data in Germany.
+    requirements:
+      - key: dpo
+        title: Data protection officer
+        reference: § 38 BDSG
+        weight: 3
+        description: Appoint a DPO if at least 20 persons are regularly engaged in automated processing of personal data, or if you carry out processing requiring a DPIA.
+        evidence_hint: DPO appointment letter, notification to the authority.
+      - key: employee_data
+        title: Employee data processing
+        reference: § 26 BDSG, Art. 88 GDPR
+        weight: 2
+        description: Document the legal basis for processing employee data and align works agreements (Betriebsvereinbarungen) with data protection law.
+        evidence_hint: Employee privacy notice, works agreements.
+      - key: video
+        title: Video surveillance of public areas
+        reference: § 4 BDSG
+        weight: 1
+        description: Assess and signpost any video surveillance of publicly accessible areas.
+        evidence_hint: Assessment, signage photos.
+      - key: confidentiality
+        title: Confidentiality commitments
+        reference: § 53 BDSG, Art. 29/32(4) GDPR
+        weight: 1
+        description: Commit employees handling personal data to confidentiality and train them.
+        evidence_hint: Signed confidentiality declarations, training records.
+
+  - code: DE_NIS2_BSIG
+    name: NIS2 Implementation Act (NIS2UmsuCG) / BSI Act (BSIG)
+    short_name: NIS2 (DE)
+    jurisdiction: DE
+    category: Cybersecurity
+    authority: Bundesamt für Sicherheit in der Informationstechnik (BSI)
+    source_url: https://www.bsi.bund.de/
+    summary: >
+      German transposition of NIS2 through the revised BSI Act. Classifies companies as
+      "particularly important" or "important" entities with registration, risk-management
+      and reporting obligations towards the BSI, plus explicit liability of management.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: DE }, { field: medium_or_larger, op: truthy }, { field: nis2_annex, op: in, value: [I, II] } ] }
+          reason: You are a {size_class} company in Germany in a NIS2 sector (Annex {nis2_annex}).
+    requirements:
+      - key: registration
+        title: Registration with the BSI
+        reference: § 33 BSIG
+        weight: 3
+        description: Register via the BSI portal and keep the registration data up to date.
+        evidence_hint: BSI registration confirmation.
+      - key: management
+        title: Management approval, oversight and training
+        reference: § 38 BSIG
+        weight: 3
+        description: Management must approve and monitor risk-management measures and complete regular cybersecurity training; management can be held liable.
+        evidence_hint: Board minutes, training certificates.
+      - key: measures
+        title: Risk-management measures
+        reference: § 30 BSIG
+        weight: 3
+        description: Implement appropriate, proportionate technical and organisational measures in line with the state of the art, and document them.
+        evidence_hint: ISMS documentation, policies, audit reports.
+      - key: reporting
+        title: Reporting of significant incidents to the BSI
+        reference: § 32 BSIG
+        weight: 3
+        description: Report significant security incidents within 24 hours (early warning), 72 hours (notification) and one month (final report).
+        evidence_hint: Reporting procedure, contact list.
+      - key: evidence
+        title: Proof of compliance (particularly important entities)
+        reference: § 39 BSIG
+        weight: 1
+        description: Particularly important entities may be required to provide evidence of compliance through audits, checks or certifications.
+        evidence_hint: Audit reports, certificates.
+
+  - code: DE_LKSG
+    name: Lieferkettensorgfaltspflichtengesetz (LkSG)
+    short_name: LkSG
+    jurisdiction: DE
+    category: Supply chain due diligence
+    authority: Bundesamt für Wirtschaft und Ausfuhrkontrolle (BAFA)
+    source_url: https://www.gesetze-im-internet.de/lksg/
+    summary: >
+      German Supply Chain Due Diligence Act. Applies to companies with at least 1,000
+      employees in Germany and requires human-rights and environmental due diligence in
+      own operations and supply chains. The legislator is easing reporting duties in
+      anticipation of the CSDDD.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: DE }, { field: employees_de, op: gte, value: 1000 } ] }
+          reason: You have {employees_de} employees in Germany (threshold 1,000).
+    requirements:
+      - key: risk_management
+        title: Risk management and responsibility
+        reference: § 4 LkSG
+        weight: 2
+        description: Establish a risk-management system and designate a responsible person (e.g. human rights officer).
+        evidence_hint: Organisation chart, appointment.
+      - key: risk_analysis
+        title: Annual and ad-hoc risk analysis
+        reference: § 5 LkSG
+        weight: 3
+        description: Analyse human-rights and environmental risks in own operations and at direct suppliers, at least annually.
+        evidence_hint: Risk analysis report.
+      - key: policy_statement
+        title: Policy statement
+        reference: § 6(2) LkSG
+        weight: 2
+        description: Adopt a policy statement on the human-rights strategy signed by management.
+        evidence_hint: Signed policy statement.
+      - key: measures
+        title: Preventive and remedial measures
+        reference: §§ 6–7 LkSG
+        weight: 2
+        description: Implement preventive measures (supplier code, audits, training) and remedial action when violations are identified.
+        evidence_hint: Supplier code of conduct, audit plan.
+      - key: complaints
+        title: Complaints procedure
+        reference: § 8 LkSG
+        weight: 2
+        description: Provide an accessible complaints procedure for people affected in the supply chain.
+        evidence_hint: Rules of procedure, public description.
+      - key: documentation
+        title: Documentation
+        reference: § 10(1) LkSG
+        weight: 1
+        description: Document the fulfilment of due diligence obligations and retain records for seven years.
+        evidence_hint: Documentation archive.
+
+  - code: DE_HINSCHG
+    name: Hinweisgeberschutzgesetz (HinSchG)
+    short_name: HinSchG
+    jurisdiction: DE
+    category: Corporate governance
+    authority: Bundesamt für Justiz (external reporting office)
+    source_url: https://www.gesetze-im-internet.de/hinschg/
+    summary: >
+      German Whistleblower Protection Act implementing Directive (EU) 2019/1937.
+      Employers with at least 50 employees must operate an internal reporting office.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: DE }, { field: employees, op: gte, value: 50 } ] }
+          reason: You employ {employees} people and operate in Germany (threshold 50).
+        - when: { all: [ { field: countries, op: contains, value: DE }, { field: financial_entity, op: truthy } ] }
+          reason: Certain financial-sector entities must have a reporting office regardless of size.
+    requirements:
+      - key: office
+        title: Internal reporting office
+        reference: §§ 12–14 HinSchG
+        weight: 3
+        description: Set up an internal reporting office staffed by independent, qualified persons (can be outsourced or shared by employers with 50–249 employees).
+        evidence_hint: Appointment, outsourcing contract.
+      - key: channels
+        title: Reporting channels
+        reference: § 16 HinSchG
+        weight: 2
+        description: Provide reporting channels for oral and written reports, and in-person meetings on request.
+        evidence_hint: Channel description, intranet page.
+      - key: procedure
+        title: Procedure and deadlines
+        reference: § 17 HinSchG
+        weight: 2
+        description: Confirm receipt within seven days and inform the whistleblower of follow-up measures within three months.
+        evidence_hint: Case handling procedure, case log.
+      - key: documentation
+        title: Documentation and confidentiality
+        reference: §§ 8, 11 HinSchG
+        weight: 1
+        description: Document reports confidentially and delete documentation three years after the procedure is concluded.
+        evidence_hint: Retention concept.
+
+  - code: DE_GWG
+    name: Geldwäschegesetz (GwG)
+    short_name: GwG
+    jurisdiction: DE
+    category: Anti-money laundering
+    authority: BaFin, state supervisory authorities, FIU (Zoll)
+    source_url: https://www.gesetze-im-internet.de/gwg_2017/
+    summary: >
+      German Anti-Money-Laundering Act for obliged entities such as banks, financial
+      service providers, real estate agents, notaries, auditors and dealers in goods.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: DE }, { field: aml_obliged, op: truthy } ] }
+          reason: You are an obliged entity under anti-money-laundering law in Germany.
+    requirements:
+      - key: risk_analysis
+        title: Risk analysis
+        reference: § 5 GwG
+        weight: 3
+        description: Prepare and regularly update a documented business-wide risk analysis.
+        evidence_hint: Risk analysis.
+      - key: internal_safeguards
+        title: Internal safeguards and AML officer
+        reference: §§ 6–7 GwG
+        weight: 3
+        description: Implement internal policies, controls and staff screening, and appoint an AML officer and deputy where required.
+        evidence_hint: AML policy, officer appointment.
+      - key: cdd
+        title: Customer due diligence
+        reference: §§ 10–15 GwG
+        weight: 3
+        description: Identify contracting parties and beneficial owners, clarify business purpose, check PEP status and monitor relationships.
+        evidence_hint: KYC procedure, sample files.
+      - key: sar
+        title: Suspicious activity reporting
+        reference: § 43 GwG
+        weight: 2
+        description: Report suspicious transactions to the FIU without delay via goAML.
+        evidence_hint: Reporting procedure, goAML registration.
+      - key: records
+        title: Record keeping
+        reference: § 8 GwG
+        weight: 1
+        description: Keep due diligence records for at least five years.
+        evidence_hint: Retention concept.
+      - key: transparency_register
+        title: Transparency register
+        reference: § 20 GwG
+        weight: 1
+        description: Report your own beneficial owners to the transparency register and report discrepancies found in the register.
+        evidence_hint: Transparency register extract.

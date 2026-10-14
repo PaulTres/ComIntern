@@ -1,0 +1,403 @@
+# EU-level regulations. Thresholds reflect the state of law as understood when
+# this catalog was written; verify against the linked sources before relying on them.
+regulations:
+  - code: EU_GDPR
+    name: General Data Protection Regulation (EU) 2016/679
+    short_name: GDPR
+    jurisdiction: EU
+    category: Data protection
+    authority: National data protection authorities (e.g. BfDI / state DPAs, ANSPDCP)
+    source_url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+    summary: >
+      Governs the processing of personal data of individuals in the EU. Applies to
+      every organisation established in the EU that processes personal data, and to
+      non-EU organisations offering goods or services to people in the EU.
+    applicability:
+      triggers:
+        - when: { all: [ { field: in_eu, op: truthy }, { field: processes_personal_data, op: truthy } ] }
+          reason: You are established in the EU and process personal data.
+        - when: { all: [ { field: in_eu, op: eq, value: false }, { field: processes_personal_data, op: truthy }, { field: b2c, op: truthy } ] }
+          reason: You process personal data of consumers who may be located in the EU (Art. 3(2)).
+    requirements:
+      - key: ropa
+        title: Record of processing activities
+        reference: Art. 30
+        weight: 3
+        description: Maintain a written record of all processing activities, including purposes, data categories, recipients, retention periods and security measures.
+        evidence_hint: Exported RoPA register (spreadsheet or tool export).
+      - key: legal_basis
+        title: Legal basis for every processing purpose
+        reference: Art. 6, Art. 9
+        weight: 3
+        description: Document the legal basis for each purpose, including consent records and legitimate-interest assessments where used.
+        evidence_hint: Legal basis matrix, LIA documents, consent templates.
+      - key: transparency
+        title: Privacy notices
+        reference: Art. 12–14
+        weight: 2
+        description: Provide clear privacy information to customers, employees and other data subjects at the time of collection.
+        evidence_hint: Website privacy policy, employee privacy notice.
+      - key: dsr
+        title: Data subject rights process
+        reference: Art. 15–22
+        weight: 2
+        description: Have a process to handle access, rectification, erasure, restriction, portability and objection requests within one month.
+        evidence_hint: DSR procedure, request log.
+      - key: toms
+        title: Technical and organisational security measures
+        reference: Art. 32
+        weight: 3
+        description: Implement appropriate security measures (access control, encryption, backups, testing) proportional to the risk.
+        evidence_hint: TOM documentation, ISMS policies, certificates (ISO 27001).
+      - key: processors
+        title: Data processing agreements
+        reference: Art. 28
+        weight: 2
+        description: Conclude data processing agreements with all processors and keep an overview of sub-processors.
+        evidence_hint: Signed DPAs, vendor list.
+      - key: breach
+        title: Personal data breach procedure
+        reference: Art. 33–34
+        weight: 2
+        description: Detect, assess and notify breaches to the authority within 72 hours and to affected individuals where required; document all breaches.
+        evidence_hint: Incident response plan, breach register.
+      - key: dpia
+        title: Data protection impact assessments
+        reference: Art. 35
+        weight: 2
+        description: Carry out DPIAs for processing likely to result in a high risk (e.g. large-scale sensitive data, systematic monitoring, new technologies).
+        evidence_hint: Completed DPIA reports, screening checklist.
+      - key: transfers
+        title: International data transfers
+        reference: Art. 44–49
+        weight: 1
+        description: Identify transfers outside the EEA and safeguard them (adequacy decision, SCCs plus transfer impact assessment).
+        evidence_hint: Transfer register, SCCs, TIAs.
+      - key: dpo
+        title: Data protection officer (where required)
+        reference: Art. 37–39
+        weight: 1
+        description: Appoint a DPO where core activities involve large-scale monitoring or sensitive data, or where national law requires it, and register the DPO with the authority.
+        evidence_hint: DPO appointment letter, authority registration.
+
+  - code: EU_NIS2
+    name: NIS2 Directive (EU) 2022/2555
+    short_name: NIS2
+    jurisdiction: EU
+    category: Cybersecurity
+    authority: National cybersecurity authorities (BSI in Germany, DNSC in Romania)
+    source_url: https://eur-lex.europa.eu/eli/dir/2022/2555/oj
+    summary: >
+      Sets cybersecurity risk-management and incident-reporting obligations for
+      medium-sized and large entities in critical sectors (Annex I and II). Applies
+      through national transposition laws; see the German and Romanian entries for
+      country-specific obligations.
+    applicability:
+      triggers:
+        - when: { all: [ { field: in_eu, op: truthy }, { field: medium_or_larger, op: truthy }, { field: nis2_annex, op: eq, value: I } ] }
+          reason: You are a {size_class} company in a sector of high criticality (NIS2 Annex I).
+        - when: { all: [ { field: in_eu, op: truthy }, { field: medium_or_larger, op: truthy }, { field: nis2_annex, op: eq, value: II } ] }
+          reason: You are a {size_class} company in an other critical sector (NIS2 Annex II).
+    requirements:
+      - key: registration
+        title: Registration with the national authority
+        reference: Art. 3(4), Art. 27
+        weight: 2
+        description: Register as an essential or important entity with the competent national authority in every member state where required.
+        evidence_hint: Registration confirmation.
+      - key: governance
+        title: Management accountability and training
+        reference: Art. 20
+        weight: 3
+        description: Management bodies must approve and oversee cybersecurity risk-management measures and attend regular cybersecurity training.
+        evidence_hint: Board resolution, training certificates.
+      - key: risk_management
+        title: Cybersecurity risk-management measures
+        reference: Art. 21(2)
+        weight: 3
+        description: Implement policies on risk analysis, incident handling, business continuity, supply chain security, secure development, effectiveness assessment, cyber hygiene, cryptography, HR security, access control and MFA.
+        evidence_hint: Information security policy set, risk register, ISMS documentation.
+      - key: incident_reporting
+        title: Significant incident reporting
+        reference: Art. 23
+        weight: 3
+        description: Report significant incidents with an early warning within 24 hours, an incident notification within 72 hours and a final report within one month.
+        evidence_hint: Incident reporting procedure, reporting templates, test exercise records.
+      - key: supply_chain
+        title: Supply chain security
+        reference: Art. 21(2)(d), 21(3)
+        weight: 2
+        description: Assess the cybersecurity practices of direct suppliers and service providers and reflect requirements in contracts.
+        evidence_hint: Supplier security assessments, contract clauses.
+      - key: bcm
+        title: Business continuity and crisis management
+        reference: Art. 21(2)(c)
+        weight: 2
+        description: Maintain backup management, disaster recovery and crisis management plans and test them regularly.
+        evidence_hint: BCM/DR plans, test reports.
+
+  - code: EU_AI_ACT
+    name: Artificial Intelligence Act (EU) 2024/1689
+    short_name: AI Act
+    jurisdiction: EU
+    category: Artificial intelligence
+    authority: National market surveillance authorities, EU AI Office
+    source_url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+    summary: >
+      Risk-based rules for AI systems placed on the EU market or used in the EU.
+      Prohibits certain practices, imposes strict requirements on high-risk AI and
+      transparency obligations on certain systems. Obligations apply in stages
+      between 2025 and 2027.
+    applicability:
+      triggers:
+        - when: { field: ai_usage, op: eq, value: provides }
+          reason: You develop or place AI systems on the market (provider obligations).
+        - when: { all: [ { field: ai_usage, op: eq, value: uses }, { field: in_eu, op: truthy } ] }
+          reason: You use AI systems in the EU (deployer obligations).
+    requirements:
+      - key: inventory
+        title: AI system inventory and risk classification
+        reference: Art. 5, 6, Annex III
+        weight: 3
+        description: Keep an inventory of all AI systems in use or development and classify each (prohibited, high-risk, limited-risk, minimal-risk, GPAI).
+        evidence_hint: AI register with classification rationale.
+      - key: prohibited
+        title: No prohibited AI practices
+        reference: Art. 5
+        weight: 3
+        description: Confirm that no AI practice prohibited since February 2025 is used (e.g. social scoring, manipulative techniques, untargeted facial-image scraping, emotion recognition at work).
+        evidence_hint: Review memo signed off by legal/compliance.
+      - key: literacy
+        title: AI literacy of staff
+        reference: Art. 4
+        weight: 2
+        description: Ensure staff dealing with AI systems have a sufficient level of AI literacy through training appropriate to their role.
+        evidence_hint: Training concept and attendance records.
+      - key: transparency
+        title: Transparency obligations
+        reference: Art. 50
+        weight: 2
+        description: Inform people when they interact with an AI system and label AI-generated or manipulated content (deepfakes) where required.
+        evidence_hint: UI disclosures, labelling guidelines.
+      - key: high_risk_deployer
+        title: High-risk AI deployer obligations
+        reference: Art. 26–27
+        weight: 2
+        description: For high-risk systems, follow instructions for use, assign human oversight, monitor operation, keep logs, inform workers and perform a fundamental rights impact assessment where required.
+        evidence_hint: Oversight assignments, logs, FRIA.
+      - key: provider_qms
+        title: Provider obligations (quality management and technical documentation)
+        reference: Art. 9–17, 53
+        weight: 2
+        description: Providers of high-risk AI need risk management, data governance, technical documentation, logging, a QMS and conformity assessment; GPAI model providers need technical documentation and a copyright policy. Mark as not applicable if you only use AI.
+        evidence_hint: Technical documentation, QMS manual, conformity assessment.
+
+  - code: EU_DORA
+    name: Digital Operational Resilience Act (EU) 2022/2554
+    short_name: DORA
+    jurisdiction: EU
+    category: Financial services / ICT
+    authority: BaFin (DE), BNR / ASF (RO), European Supervisory Authorities
+    source_url: https://eur-lex.europa.eu/eli/reg/2022/2554/oj
+    summary: >
+      Applies since 17 January 2025 to financial entities and sets requirements for
+      ICT risk management, incident reporting, resilience testing and ICT
+      third-party risk. ICT providers to financial entities are affected through
+      mandatory contract clauses and, if designated critical, direct oversight.
+    applicability:
+      triggers:
+        - when: { all: [ { field: financial_entity, op: truthy }, { field: in_eu, op: truthy } ] }
+          reason: You are a regulated financial entity in the EU.
+        - when: { field: ict_provider_to_finance, op: truthy }
+          reason: You provide ICT services to financial entities; DORA contract requirements flow down to you.
+    requirements:
+      - key: framework
+        title: ICT risk-management framework
+        reference: Art. 5–16
+        weight: 3
+        description: Establish a documented ICT risk-management framework approved by the management body, including identification, protection, detection, response and recovery.
+        evidence_hint: ICT risk framework, digital operational resilience strategy.
+      - key: incidents
+        title: ICT incident classification and reporting
+        reference: Art. 17–23
+        weight: 3
+        description: Classify ICT-related incidents and report major incidents to the competent authority (initial, intermediate and final reports).
+        evidence_hint: Incident management process, classification criteria.
+      - key: testing
+        title: Digital operational resilience testing
+        reference: Art. 24–27
+        weight: 2
+        description: Run a risk-based testing programme (vulnerability scans, scenario tests); significant entities perform threat-led penetration testing (TLPT).
+        evidence_hint: Test plan and reports.
+      - key: register
+        title: Register of information on ICT third-party arrangements
+        reference: Art. 28(3)
+        weight: 3
+        description: Maintain and report the register of all contractual arrangements with ICT third-party service providers.
+        evidence_hint: Register of information export.
+      - key: contracts
+        title: Contractual provisions with ICT providers
+        reference: Art. 30
+        weight: 2
+        description: Contracts with ICT providers must include the mandatory DORA clauses (service levels, data location, audit rights, exit strategies, incident support).
+        evidence_hint: Contract templates, gap analysis of existing contracts.
+
+  - code: EU_CSRD
+    name: Corporate Sustainability Reporting Directive (EU) 2022/2464
+    short_name: CSRD
+    jurisdiction: EU
+    category: Sustainability reporting
+    authority: National enforcement authorities, statutory auditors
+    source_url: https://eur-lex.europa.eu/eli/dir/2022/2464/oj
+    summary: >
+      Requires sustainability reporting under the European Sustainability Reporting
+      Standards (ESRS). The Omnibus I simplification significantly narrowed the scope
+      to very large companies; reporting dates were postponed by the "stop-the-clock"
+      directive. Check the national transposition status in your countries.
+    applicability:
+      triggers:
+        - when: { all: [ { field: in_eu, op: truthy }, { field: employees, op: gt, value: 1000 }, { field: turnover_m, op: gt, value: 450 } ] }
+          reason: You have more than 1,000 employees and more than EUR 450m turnover (Omnibus I scope).
+    requirements:
+      - key: dma
+        title: Double materiality assessment
+        reference: ESRS 1
+        weight: 3
+        description: Identify material impacts, risks and opportunities from both the impact and the financial perspective.
+        evidence_hint: Materiality assessment report.
+      - key: data
+        title: ESG data collection and controls
+        reference: ESRS 2
+        weight: 2
+        description: Set up processes and internal controls to collect reliable data for the material ESRS datapoints.
+        evidence_hint: Data inventory, process descriptions.
+      - key: climate
+        title: Climate disclosures and transition plan
+        reference: ESRS E1
+        weight: 2
+        description: Report greenhouse gas emissions (Scope 1, 2 and material Scope 3) and disclose the climate transition plan.
+        evidence_hint: GHG inventory, transition plan.
+      - key: assurance
+        title: Limited assurance of the sustainability statement
+        reference: Art. 34 Accounting Directive
+        weight: 2
+        description: Obtain limited assurance on the sustainability statement by an auditor or independent assurance provider.
+        evidence_hint: Assurance engagement letter or report.
+      - key: taxonomy
+        title: EU Taxonomy disclosures
+        reference: Art. 8 Regulation (EU) 2020/852
+        weight: 1
+        description: Report taxonomy-eligible and aligned turnover, CapEx and OpEx.
+        evidence_hint: Taxonomy KPI calculation.
+
+  - code: EU_CSDDD
+    name: Corporate Sustainability Due Diligence Directive (EU) 2024/1760
+    short_name: CSDDD
+    jurisdiction: EU
+    category: Supply chain due diligence
+    authority: National supervisory authorities
+    source_url: https://eur-lex.europa.eu/eli/dir/2024/1760/oj
+    summary: >
+      Requires very large companies to identify, prevent and remedy human rights and
+      environmental impacts in their own operations and chain of activities. Scope and
+      timelines were narrowed and postponed by the Omnibus I simplification; obligations
+      apply from 2029 at the earliest.
+    applicability:
+      triggers:
+        - when: { all: [ { field: in_eu, op: truthy }, { field: employees, op: gt, value: 5000 }, { field: turnover_m, op: gt, value: 1500 } ] }
+          reason: You have more than 5,000 employees and more than EUR 1.5bn turnover (Omnibus I scope).
+    requirements:
+      - key: policy
+        title: Due diligence policy
+        reference: Art. 7
+        weight: 2
+        description: Integrate due diligence into policies and risk management systems with a code of conduct.
+        evidence_hint: Due diligence policy, code of conduct.
+      - key: identification
+        title: Identification of adverse impacts
+        reference: Art. 8
+        weight: 3
+        description: Map operations and chain of activities and identify actual and potential adverse impacts.
+        evidence_hint: Risk mapping, impact assessment.
+      - key: prevention
+        title: Prevention and remediation
+        reference: Art. 10–12
+        weight: 2
+        description: Take appropriate measures to prevent, mitigate and bring adverse impacts to an end, and provide remediation.
+        evidence_hint: Action plans, contractual assurances.
+      - key: complaints
+        title: Complaints procedure
+        reference: Art. 14
+        weight: 2
+        description: Provide a notification mechanism and complaints procedure for affected persons and organisations.
+        evidence_hint: Complaints procedure description.
+
+  - code: EU_WHISTLEBLOWING
+    name: Whistleblower Protection Directive (EU) 2019/1937
+    short_name: Whistleblowing (EU)
+    jurisdiction: EU
+    category: Corporate governance
+    authority: National competent authorities
+    source_url: https://eur-lex.europa.eu/eli/dir/2019/1937/oj
+    summary: >
+      Requires legal entities with 50 or more workers to set up internal reporting
+      channels and protects whistleblowers against retaliation. Shown for operations
+      in other EU countries; see the German and Romanian entries for national rules.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: OTHER_EU }, { field: employees, op: gte, value: 50 } ] }
+          reason: You have {employees} employees and operations in other EU member states.
+        - when: { all: [ { field: countries, op: contains, value: OTHER_EU }, { field: financial_entity, op: truthy } ] }
+          reason: Financial-sector entities need reporting channels regardless of size.
+    requirements:
+      - key: channel
+        title: Internal reporting channel
+        reference: Art. 8–9
+        weight: 3
+        description: Set up a confidential channel for written and/or oral reports, accessible to employees and other persons.
+        evidence_hint: Channel description, policy.
+      - key: process
+        title: Follow-up and feedback deadlines
+        reference: Art. 9(1)
+        weight: 2
+        description: Acknowledge receipt within seven days and give feedback within three months.
+        evidence_hint: Case handling procedure.
+      - key: protection
+        title: Protection against retaliation
+        reference: Art. 19–21
+        weight: 2
+        description: Ensure whistleblowers are protected against retaliation and inform staff about external reporting options.
+        evidence_hint: Policy, staff communication.
+
+  - code: EU_AML
+    name: EU Anti-Money-Laundering framework (AMLD / AMLR)
+    short_name: AML (EU)
+    jurisdiction: EU
+    category: Anti-money laundering
+    authority: National FIUs and supervisors, AMLA
+    source_url: https://eur-lex.europa.eu/eli/reg/2024/1624/oj
+    summary: >
+      The EU AML package replaces the directive-based regime with the directly
+      applicable AML Regulation (EU) 2024/1624 from 10 July 2027, supervised in part by
+      the new EU Authority AMLA. Shown for operations in other EU countries; see the
+      German and Romanian entries for national rules.
+    applicability:
+      triggers:
+        - when: { all: [ { field: countries, op: contains, value: OTHER_EU }, { field: aml_obliged, op: truthy } ] }
+          reason: You are an AML obliged entity with operations in other EU member states.
+    requirements:
+      - key: risk_assessment
+        title: Business-wide risk assessment
+        weight: 3
+        description: Identify and assess money-laundering and terrorist-financing risks of your business.
+        evidence_hint: Risk assessment document.
+      - key: cdd
+        title: Customer due diligence
+        weight: 3
+        description: Identify and verify customers and beneficial owners, apply enhanced due diligence for higher risks.
+        evidence_hint: KYC procedure, sample files.
+      - key: readiness
+        title: AMLR 2027 readiness
+        weight: 1
+        description: Assess gaps between current procedures and the AML Regulation applicable from July 2027.
+        evidence_hint: Gap analysis.

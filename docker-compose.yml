@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: ./backend
+    ports: ["8000:8000"]
+    environment:
+      COMINTERN_JWT_SECRET: ${COMINTERN_JWT_SECRET:-change-me-to-a-long-random-secret-value}
+      COMINTERN_DATABASE_URL: sqlite:////data/comintern.db
+      COMINTERN_UPLOAD_DIR: /data/uploads
+    volumes:
+      - comintern-data:/data
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports: ["3000:3000"]
+    depends_on: [backend]
+
+volumes:
+  comintern-data:

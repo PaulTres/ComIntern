@@ -1,0 +1,137 @@
+# Onboarding questionnaire. The frontend renders these steps generically;
+# answers are stored in Company.profile keyed by question id and evaluated
+# by services/applicability.py against the rules in regulations/*.yaml.
+steps:
+  - id: footprint
+    title: Where do you operate?
+    description: Tell us where your company has establishments, employees or customers.
+    questions:
+      - id: countries
+        type: multi_select
+        label: Countries of operation
+        required: true
+        options:
+          - { value: DE, label: Germany }
+          - { value: RO, label: Romania }
+          - { value: OTHER_EU, label: Other EU member state(s) }
+          - { value: NON_EU, label: Outside the EU }
+      - id: b2c
+        type: boolean
+        label: Do you sell products or services directly to consumers (B2C)?
+
+  - id: size
+    title: How big is your company?
+    description: Size thresholds decide whether many regulations apply. Use group-level figures.
+    questions:
+      - id: employees
+        type: number
+        label: Number of employees
+        required: true
+        min: 0
+      - id: employees_de
+        type: number
+        label: Employees based in Germany
+        min: 0
+        show_if: { field: countries, op: contains, value: DE }
+      - id: turnover_m
+        type: number
+        label: Annual turnover (EUR million)
+        required: true
+        min: 0
+      - id: balance_sheet_m
+        type: number
+        label: Balance sheet total (EUR million)
+        required: true
+        min: 0
+
+  - id: sector
+    title: What does your company do?
+    description: Your sector determines cybersecurity and financial-sector obligations.
+    questions:
+      - id: sector
+        type: single_select
+        label: Primary sector
+        required: true
+        options:
+          - { value: energy, label: Energy (electricity, gas, oil, district heating, hydrogen) }
+          - { value: transport, label: Transport (air, rail, water, road) }
+          - { value: banking, label: Banking }
+          - { value: financial_market, label: Financial market infrastructure / investment firms }
+          - { value: insurance, label: Insurance }
+          - { value: health, label: Health (hospitals, labs, pharma, medical devices) }
+          - { value: water, label: Drinking water / waste water }
+          - { value: digital_infrastructure, label: Digital infrastructure (cloud, data centres, DNS, CDN, telecoms) }
+          - { value: ict_services, label: Managed ICT / security services (B2B) }
+          - { value: digital_providers, label: Online marketplaces, search engines, social networks }
+          - { value: postal, label: Postal and courier services }
+          - { value: waste, label: Waste management }
+          - { value: chemicals, label: Chemicals }
+          - { value: food, label: Food production and distribution }
+          - { value: manufacturing, label: Manufacturing (machinery, vehicles, electronics, …) }
+          - { value: research, label: Research organisations }
+          - { value: real_estate, label: Real estate }
+          - { value: retail, label: Retail / e-commerce }
+          - { value: professional_services, label: Professional services (consulting, legal, accounting) }
+          - { value: software, label: Software / SaaS }
+          - { value: other, label: Other }
+
+  - id: data
+    title: Data and technology
+    description: How you handle personal data and AI.
+    questions:
+      - id: processes_personal_data
+        type: boolean
+        label: Do you process personal data (customers, employees, users)?
+        required: true
+      - id: special_category_data
+        type: boolean
+        label: Do you process sensitive data (health, biometrics, religion, criminal records, …)?
+        show_if: { field: processes_personal_data, op: eq, value: true }
+      - id: dp_staff_count
+        type: number
+        label: How many people regularly work with automated processing of personal data?
+        min: 0
+        show_if: { field: countries, op: contains, value: DE }
+      - id: ai_usage
+        type: single_select
+        label: How do you use artificial intelligence?
+        required: true
+        options:
+          - { value: none, label: We do not use AI systems }
+          - { value: uses, label: We use AI systems (e.g. chatbots, scoring, HR tools) }
+          - { value: provides, label: We develop or sell AI systems / models }
+      - id: ai_high_risk
+        type: boolean
+        label: Is AI used in high-risk areas (hiring, credit scoring, critical infrastructure, education, biometrics)?
+        show_if: { field: ai_usage, op: in, value: [uses, provides] }
+
+  - id: finance
+    title: Finance and governance
+    description: Financial-sector, capital-market and anti-money-laundering questions.
+    questions:
+      - id: financial_entity
+        type: boolean
+        label: Are you a regulated financial entity (bank, insurer, investment firm, payment / e-money / crypto provider)?
+        required: true
+      - id: ict_provider_to_finance
+        type: boolean
+        label: Do you provide ICT services (cloud, software, data) to financial entities?
+      - id: listed
+        type: boolean
+        label: Are your securities listed on an EU regulated market?
+      - id: aml_obliged
+        type: boolean
+        label: Are you an obliged entity under anti-money-laundering law (e.g. bank, real estate agent, notary, auditor, crypto provider, dealer in high-value goods)?
+        required: true
+
+  - id: supply_chain
+    title: Supply chain
+    description: Due-diligence laws look at your suppliers.
+    questions:
+      - id: non_eu_supply_chain
+        type: boolean
+        label: Do you source goods or services from suppliers outside the EU?
+      - id: high_risk_goods_ro
+        type: boolean
+        label: Do you transport goods with high fiscal risk in Romania (e.g. fruit, vegetables, construction materials, clothing, footwear, alcohol)?
+        show_if: { field: countries, op: contains, value: RO }
