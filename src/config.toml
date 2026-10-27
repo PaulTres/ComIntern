@@ -1,0 +1,17 @@
+[server]
+# Hard cap enforced by Streamlit itself (MB). Keeps oversized uploads from ever
+# reaching our code; must be >= MAX_FILE_SIZE_MB in config.py.
+maxUploadSize = 25
+# CSRF protection for form posts / uploads. Keep enabled in production.
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#24456B"
+backgroundColor = "#FBFBF9"
+secondaryBackgroundColor = "#EEF1F4"
+textColor = "#1B2430"
+font = "sans serif"
