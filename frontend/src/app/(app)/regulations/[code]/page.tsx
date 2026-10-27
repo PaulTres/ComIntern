@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ExternalLink, Landmark, Loader2 } from "lucide-react";
+import { ArrowLeft, Bot, ExternalLink, Landmark, Loader2 } from "lucide-react";
 
 import { JurisdictionBadge } from "@/components/badges";
 import { RequirementCard } from "@/components/requirement-card";
@@ -68,6 +68,9 @@ export default function RegulationDetailPage() {
                 Official source <ExternalLink className="size-3" />
               </a>
             )}
+            <Link href={`/assistant?regulation=${reg.code}`} className="inline-flex items-center gap-1 text-primary hover:underline">
+              <Bot className="size-3.5" /> Ask the {reg.short_name} agent
+            </Link>
           </div>
         </div>
         <div className="flex justify-center">

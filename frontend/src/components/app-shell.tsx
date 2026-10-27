@@ -24,7 +24,7 @@ const NAV = [
   { href: "/regulations", label: "Regulations", icon: ListChecks },
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/updates", label: "Updates", icon: Bell },
-  { href: "/assistant", label: "Assistant", icon: Bot, soon: true },
+  { href: "/assistant", label: "Assistant", icon: Bot },
   { href: "/settings", label: "Company profile", icon: Settings },
 ];
 
@@ -49,7 +49,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <nav className="flex flex-col gap-1">
-      {NAV.map(({ href, label, icon: Icon, soon }) => {
+      {NAV.map(({ href, label, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
@@ -63,11 +63,6 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
           >
             <Icon className="size-4" />
             {label}
-            {soon && (
-              <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                Soon
-              </span>
-            )}
           </Link>
         );
       })}
