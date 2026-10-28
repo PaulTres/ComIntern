@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 
 import { PageHeader } from "@/components/app-shell";
-import { EmptyState } from "@/components/section-card";
+import { EmptyState, Loading, Section } from "@/components/list";
 import { Switch } from "@/components/ui/switch";
 import { UpdateItem } from "@/components/update-item";
 import type { RegulatoryUpdate } from "@/lib/types";
@@ -17,35 +16,30 @@ export default function UpdatesPage() {
   return (
     <>
       <PageHeader
-        title="Regulatory updates"
-        description="New deadlines, amendments and guidance. Curated entries – always check the official source."
-        action={
-          <label className="flex items-center gap-2 text-sm">
-            <Switch checked={relevantOnly} onCheckedChange={setRelevantOnly} />
-            Only my regulations
-          </label>
-        }
+        title="Updates"
+        description="New deadlines, amendments and guidance, curated by hand. Always check the official source."
       />
+
+      <Section className="mb-8">
+        <label className="flex min-h-12 cursor-pointer items-center justify-between gap-4 px-4 py-2">
+          <span className="text-[17px] sm:text-[15px]">Only my regulations</span>
+          <Switch checked={relevantOnly} onCheckedChange={setRelevantOnly} />
+        </label>
+      </Section>
+
       {!data ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="size-6 animate-spin text-muted-foreground" />
-        </div>
+        <Loading />
       ) : data.length === 0 ? (
         <EmptyState>No updates.</EmptyState>
       ) : (
-        <ol className="relative flex flex-col gap-4 border-l pl-6">
+        <div className="flex flex-col gap-3">
           {data.map((u) => (
-            <li key={u.id} className="relative">
-              <span
-                className={`absolute top-6 -left-[1.95rem] size-3 rounded-full border-2 border-background ${u.relevant ? "bg-primary" : "bg-muted-foreground/40"}`}
-              />
-              <div className="rounded-xl border bg-card p-5">
-                <UpdateItem update={u} />
-                {!u.relevant && <p className="mt-3 text-xs text-muted-foreground">Not among your applicable regulations.</p>}
-              </div>
-            </li>
+            <div key={u.id} className="rounded-xl bg-card p-4 sm:p-5">
+              <UpdateItem update={u} />
+              {!u.relevant && <p className="mt-3 text-[13px] text-tertiary-foreground">Not one of your regulations.</p>}
+            </div>
           ))}
-        </ol>
+        </div>
       )}
     </>
   );

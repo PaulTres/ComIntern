@@ -1,0 +1,54 @@
+# Only PostgreSQL and Qdrant, for local development: the API and the frontend run on your
+# machine (make run, npm run dev). docker compose -f dev/docker-compose.yml up -d
+name: comintern-dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE__USER:-comintern}
+      POSTGRES_PASSWORD: ${DATABASE__PASSWORD:-comintern}
+      POSTGRES_DB: ${DATABASE__NAME:-comintern}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE__USER:-comintern}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:v1.19.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${QDRANT_PORT:-6333}:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  # Creates the collection once, so there is nothing to click in the Qdrant UI.
+  qdrant-init:
+    image: curlimages/curl:8.11.1
+    restart: "no"
+    depends_on:
+      qdrant:
+        condition: service_started
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      COLLECTION: ${VECTOR_STORE__COLLECTION_NAME:-comintern}
+      SIZE: ${EMBEDDINGS__SIZE:-768}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        until curl -fsS "$$QDRANT_URL/readyz" >/dev/null 2>&1; do sleep 2; done
+        curl -fs -X PUT "$$QDRANT_URL/collections/$$COLLECTION" \
+          -H 'Content-Type: application/json' \
+          -d "{\"vectors\":{\"size\":$$SIZE,\"distance\":\"Cosine\"}}" \
+          >/dev/null && echo "created $$COLLECTION" || echo "$$COLLECTION already exists"
+
+volumes:
+  pgdata:
+  qdrant_data:
