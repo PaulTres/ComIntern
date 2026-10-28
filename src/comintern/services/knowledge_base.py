@@ -84,7 +84,6 @@ class KnowledgeBase:
         return len(passages)
 
     async def remove(self, source_id: str) -> None:
-        """Delete every passage of one source."""
         await delete_points_by_metadata(self._vector_store, SOURCE_ID_KEY, source_id)
 
     async def search(

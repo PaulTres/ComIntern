@@ -1,15 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/app-shell";
-import { SectionCard } from "@/components/section-card";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Row, Section } from "@/components/list";
+import { Button } from "@/components/ui/button";
 import { api, json } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { isVisible } from "@/lib/format";
@@ -24,7 +21,7 @@ function display(value: unknown, options?: { value: string; label: string }[]) {
 }
 
 export default function SettingsPage() {
-  const { user, refresh } = useAuth();
+  const { user, refresh, logout } = useAuth();
   const { data: q } = useApi<{ steps: QuestionnaireStep[] }>("/questionnaire");
   const [name, setName] = useState(user?.company.name ?? "");
   const [saving, setSaving] = useState(false);
@@ -44,41 +41,62 @@ export default function SettingsPage() {
     }
   }
 
+  const answers = q?.steps.flatMap((s) =>
+    s.questions.filter((question) => isVisible(question.show_if, profile) && profile[question.id] !== undefined),
+  );
+
   return (
-    <>
-      <PageHeader title="Company profile" description="Your answers determine which regulations apply." />
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <SectionCard title="Company">
-          <form onSubmit={saveName} className="flex flex-col gap-3">
-            <Label htmlFor="name">Company name</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-            <Button type="submit" disabled={saving || name === user?.company.name} className="self-start">
+    <div className="mx-auto max-w-2xl">
+      <PageHeader title="Company" description="Your answers decide which regulations apply." />
+
+      <div className="flex flex-col gap-8">
+        <Section title="Name">
+          <form onSubmit={saveName} className="flex min-h-12 items-center gap-3 py-1.5 pr-2 pl-4">
+            <label htmlFor="name" className="sr-only">
+              Company name
+            </label>
+            <input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="h-10 min-w-0 flex-1 bg-transparent text-[17px] outline-none sm:text-[15px]"
+            />
+            <Button type="submit" size="sm" disabled={saving || name === user?.company.name}>
               {saving && <Loader2 className="animate-spin" />} Save
             </Button>
           </form>
-        </SectionCard>
+        </Section>
 
-        <SectionCard title="Assessment answers" className="lg:col-span-2">
-          <dl className="flex flex-col divide-y">
-            {q?.steps.flatMap((s) =>
-              s.questions
-                .filter((question) => isVisible(question.show_if, profile) && profile[question.id] !== undefined)
-                .map((question) => (
-                  <div key={question.id} className="grid gap-1 py-3 sm:grid-cols-2 sm:gap-4">
-                    <dt className="text-sm text-muted-foreground">{question.label}</dt>
-                    <dd className="text-sm font-medium">{display(profile[question.id], question.options)}</dd>
-                  </div>
-                )),
-            )}
-          </dl>
-          <Link href="/onboarding" className={`${buttonVariants()} mt-4`}>
-            Update answers <ArrowRight />
-          </Link>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Updating your answers re-runs the assessment. Your requirement statuses and documents are kept.
-          </p>
-        </SectionCard>
+        <Section
+          title="Assessment"
+          footer="Changing your answers runs the assessment again. Your requirement statuses and documents are kept."
+        >
+          {answers?.map((question) => (
+            <Row key={question.id}>
+              <div className="flex w-full flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-6">
+                <span className="text-[15px] sm:w-1/2">{question.label}</span>
+                <span className="text-[15px] text-muted-foreground sm:flex-1 sm:text-right">
+                  {display(profile[question.id], question.options)}
+                </span>
+              </div>
+            </Row>
+          ))}
+          <Row href="/onboarding">
+            <span className="text-[15px] text-primary">Change Answers</span>
+          </Row>
+        </Section>
+
+        <Section title="Account">
+          <Row>
+            <span className="text-[15px]">Email</span>
+            <span className="ml-auto truncate text-[15px] text-muted-foreground">{user?.email}</span>
+          </Row>
+          <Row onClick={logout} chevron={false}>
+            <span className="text-[15px] text-red">Sign Out</span>
+          </Row>
+        </Section>
       </div>
-    </>
+    </div>
   );
 }

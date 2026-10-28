@@ -2,54 +2,44 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import { PageHeader } from "@/components/app-shell";
 import { JurisdictionBadge } from "@/components/badges";
+import { SegmentedControl } from "@/components/controls";
+import { EmptyState, Loading } from "@/components/list";
 import { LevelLabel, ScoreBar } from "@/components/score";
-import { EmptyState } from "@/components/section-card";
 import { buttonVariants } from "@/components/ui/button";
 import type { RegulationSummary } from "@/lib/types";
 import { useApi } from "@/lib/use-api";
-import { cn } from "@/lib/utils";
 
-const FILTERS = ["All", "EU", "DE", "RO"] as const;
+const FILTERS = [
+  { value: "All", label: "All" },
+  { value: "EU", label: "EU" },
+  { value: "DE", label: "Germany" },
+  { value: "RO", label: "Romania" },
+];
 
 export default function RegulationsPage() {
   const { data } = useApi<RegulationSummary[]>("/company/regulations");
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
+  const [filter, setFilter] = useState("All");
   const regs = data?.filter((r) => filter === "All" || r.jurisdiction === filter) ?? [];
 
   return (
     <>
       <PageHeader
         title="Regulations"
-        description="Everything that applies to your company, based on your profile."
+        description="Everything that applies to your company, based on your answers."
         action={
-          <Link href="/onboarding" className={buttonVariants({ variant: "outline" })}>
-            Re-run assessment
+          <Link href="/onboarding" className={buttonVariants({ variant: "tinted" })}>
+            Re-run Assessment
           </Link>
         }
       />
-      <div className="mb-6 flex gap-1 rounded-lg border bg-card p-1 sm:w-fit">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={cn(
-              "flex-1 rounded-md px-3 py-1.5 text-sm transition-colors sm:flex-none",
-              filter === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {f === "All" ? "All" : f === "EU" ? "EU" : f === "DE" ? "Germany" : "Romania"}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl label="Jurisdiction" options={FILTERS} value={filter} onChange={setFilter} className="mb-6 sm:w-96" />
 
       {!data ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="size-6 animate-spin text-muted-foreground" />
-        </div>
+        <Loading />
       ) : regs.length === 0 ? (
         <EmptyState>No regulations in this view.</EmptyState>
       ) : (
@@ -58,20 +48,23 @@ export default function RegulationsPage() {
             <Link
               key={r.code}
               href={`/regulations/${r.code}`}
-              className="group flex flex-col rounded-xl border bg-card p-5 transition-shadow hover:shadow-md"
+              className="group flex flex-col rounded-xl bg-card p-5 transition-shadow outline-none hover:shadow-[0_4px_20px_rgb(0_0_0/0.06)] focus-visible:ring-3 focus-visible:ring-ring/50 active:opacity-80"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="font-semibold group-hover:text-primary">{r.short_name}</h2>
-                  <p className="truncate text-xs text-muted-foreground">{r.name}</p>
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-[17px] font-semibold">{r.short_name}</h2>
+                    <JurisdictionBadge code={r.jurisdiction} />
+                  </div>
+                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{r.name}</p>
                 </div>
-                <JurisdictionBadge code={r.jurisdiction} />
+                <ChevronRight className="mt-1 size-4 shrink-0 text-tertiary-foreground transition-transform group-hover:translate-x-0.5" />
               </div>
-              <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{r.summary}</p>
+              <p className="mt-3 line-clamp-2 text-[15px] leading-snug text-muted-foreground">{r.summary}</p>
               <div className="mt-auto pt-5">
-                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+                <div className="mb-2 flex items-center justify-between gap-2 text-[13px] text-muted-foreground">
                   <span>
-                    {r.score.compliant}/{r.score.total - r.score.not_applicable} requirements met · {r.score.evidenced} evidenced
+                    {r.score.compliant} of {r.score.total - r.score.not_applicable} met · {r.score.evidenced} with evidence
                   </span>
                   <LevelLabel level={r.score.level} />
                 </div>

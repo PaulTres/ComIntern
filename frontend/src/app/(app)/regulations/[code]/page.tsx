@@ -3,23 +3,25 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Bot, ExternalLink, Landmark, Loader2 } from "lucide-react";
+import { ArrowUpRight, Check, MessageCircle } from "lucide-react";
 
+import { PageHeader } from "@/components/app-shell";
 import { JurisdictionBadge } from "@/components/badges";
+import { SegmentedControl } from "@/components/controls";
+import { EmptyState, Loading, Row, Section } from "@/components/list";
 import { RequirementCard } from "@/components/requirement-card";
 import { ScoreRing } from "@/components/score";
-import { EmptyState, SectionCard } from "@/components/section-card";
 import { StatusBreakdown } from "@/components/status-breakdown";
+import { buttonVariants } from "@/components/ui/button";
 import { UpdateItem } from "@/components/update-item";
 import type { RegulationDetail, Requirement } from "@/lib/types";
 import { useApi } from "@/lib/use-api";
-import { cn } from "@/lib/utils";
 
 const FILTERS: { label: string; match: (r: Requirement) => boolean }[] = [
   { label: "All", match: () => true },
   { label: "Open", match: (r) => r.status === "not_started" || r.status === "in_progress" },
   { label: "Compliant", match: (r) => r.status === "compliant" },
-  { label: "Missing evidence", match: (r) => r.status !== "not_applicable" && r.documents.length === 0 },
+  { label: "No evidence", match: (r) => r.status !== "not_applicable" && r.documents.length === 0 },
 ];
 
 export default function RegulationDetailPage() {
@@ -33,69 +35,60 @@ export default function RegulationDetailPage() {
   }, [reg, hash]);
 
   if (error) return <EmptyState>{error.message}</EmptyState>;
-  if (!reg)
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+  if (!reg) return <Loading />;
 
   const visible = reg.requirements.filter(FILTERS[filter].match);
 
   return (
     <>
-      <Link href="/regulations" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" /> All regulations
-      </Link>
+      <PageHeader title={reg.short_name} description={reg.name} back={{ href: "/regulations", label: "Regulations" }} />
 
-      <div className="flex flex-col gap-6 rounded-xl border bg-card p-6 sm:flex-row sm:items-center">
+      <div className="flex flex-col-reverse gap-6 rounded-xl bg-card p-5 sm:flex-row sm:items-center sm:p-6">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
             <JurisdictionBadge code={reg.jurisdiction} />
-            <span className="text-xs text-muted-foreground">{reg.category}</span>
-          </div>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">{reg.short_name}</h1>
-          <p className="text-sm text-muted-foreground">{reg.name}</p>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed">{reg.summary}</p>
-          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+            <span>{reg.category}</span>
             {reg.authority && (
-              <span className="inline-flex items-center gap-1.5">
-                <Landmark className="size-3.5" /> {reg.authority}
-              </span>
+              <>
+                <span aria-hidden>·</span>
+                <span>{reg.authority}</span>
+              </>
             )}
+          </div>
+          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed">{reg.summary}</p>
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Link href={`/assistant?regulation=${reg.code}`} className={buttonVariants({ variant: "tinted" })}>
+              <MessageCircle /> Ask the {reg.short_name} Agent
+            </Link>
             {reg.source_url && (
-              <a href={reg.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-                Official source <ExternalLink className="size-3" />
+              <a href={reg.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-[15px] text-primary hover:opacity-70">
+                Official source <ArrowUpRight className="size-4" />
               </a>
             )}
-            <Link href={`/assistant?regulation=${reg.code}`} className="inline-flex items-center gap-1 text-primary hover:underline">
-              <Bot className="size-3.5" /> Ask the {reg.short_name} agent
-            </Link>
           </div>
         </div>
         <div className="flex justify-center">
-          <ScoreRing score={reg.score.score} level={reg.score.level} size={136} stroke={12} />
+          <ScoreRing score={reg.score.score} level={reg.score.level} size={140} stroke={14} />
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="flex flex-col gap-4 lg:col-span-2">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="font-medium">Requirements</h2>
-            <div className="flex flex-wrap gap-1 rounded-lg border bg-card p-1">
-              {FILTERS.map((f, i) => (
-                <button
-                  key={f.label}
-                  onClick={() => setFilter(i)}
-                  className={cn(
-                    "rounded-md px-2.5 py-1 text-xs transition-colors",
-                    filter === i ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {f.label} <span className="opacity-70">{reg.requirements.filter(f.match).length}</span>
-                </button>
-              ))}
-            </div>
+      <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3">
+        <section className="flex flex-col gap-3 lg:col-span-2">
+          <div className="flex flex-col gap-3 px-1 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="text-[20px] leading-tight font-semibold tracking-tight">Requirements</h2>
+            <SegmentedControl
+              label="Show requirements"
+              value={filter}
+              onChange={setFilter}
+              options={FILTERS.map((f, i) => ({
+                value: i,
+                label: (
+                  <>
+                    {f.label} <span className="text-muted-foreground tabular-nums">{reg.requirements.filter(f.match).length}</span>
+                  </>
+                ),
+              }))}
+            />
           </div>
           {visible.length ? (
             visible.map((r) => (
@@ -104,33 +97,31 @@ export default function RegulationDetailPage() {
           ) : (
             <EmptyState>No requirements in this view.</EmptyState>
           )}
-        </div>
+        </section>
 
-        <div className="flex flex-col gap-4">
-          <SectionCard title="Why this applies">
-            <ul className="flex flex-col gap-2">
-              {reg.reasons.map((reason) => (
-                <li key={reason} className="flex gap-2 text-sm text-muted-foreground">
-                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
-                  {reason}
-                </li>
-              ))}
-            </ul>
-          </SectionCard>
-          <SectionCard title="Progress">
+        <div className="flex flex-col gap-8">
+          <Section title="Why This Applies">
+            {reg.reasons.map((reason) => (
+              <Row key={reason} className="items-start">
+                <Check className="mt-0.5 size-4 shrink-0 text-green" strokeWidth={2.5} />
+                <span className="text-[15px] leading-snug">{reason}</span>
+              </Row>
+            ))}
+          </Section>
+          <Section title="Progress">
             <StatusBreakdown score={reg.score} />
-          </SectionCard>
-          <SectionCard title="Updates">
+          </Section>
+          <Section title="Updates">
             {reg.updates.length ? (
-              <div className="flex flex-col gap-5">
-                {reg.updates.map((u) => (
-                  <UpdateItem key={u.id} update={u} />
-                ))}
-              </div>
+              reg.updates.map((u) => (
+                <Row key={u.id} className="py-3">
+                  <UpdateItem update={u} />
+                </Row>
+              ))
             ) : (
-              <EmptyState>No recent updates.</EmptyState>
+              <p className="px-4 py-8 text-center text-[15px] text-muted-foreground">No recent updates.</p>
             )}
-          </SectionCard>
+          </Section>
         </div>
       </div>
     </>

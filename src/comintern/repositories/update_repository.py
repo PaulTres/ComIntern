@@ -5,8 +5,6 @@ from comintern.schemas import RegulatoryUpdate
 
 
 class UpdateRepository:
-    """The regulatory updates feed."""
-
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 

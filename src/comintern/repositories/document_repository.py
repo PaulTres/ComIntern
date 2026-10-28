@@ -5,8 +5,6 @@ from comintern.schemas import Document, Regulation, Requirement
 
 
 class DocumentRepository:
-    """A company's evidence documents."""
-
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 

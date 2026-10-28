@@ -1,5 +1,5 @@
-"""The curated data kept as YAML next to this file: the questionnaire, the regulation catalog
-and the regulatory updates feed. `comintern-seed` loads it into the database."""
+"""The curated data kept as YAML next to this file: the questionnaire, the regulation catalog,
+the regulatory updates feed and the demo company. `comintern-seed` loads it into the database."""
 
 from functools import cache
 from pathlib import Path
@@ -37,3 +37,10 @@ def update_entries() -> list[dict[str, Any]]:
     :return: The regulatory updates feed.
     """
     return _load(CATALOG_DIRECTORY / "updates.yaml").get("updates", [])
+
+
+def demo_company() -> dict[str, Any]:
+    """
+    :return: The name and questionnaire answers of the company behind the demo login.
+    """
+    return _load(CATALOG_DIRECTORY / "demo_company.yaml")

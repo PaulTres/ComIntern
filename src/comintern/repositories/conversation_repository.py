@@ -5,8 +5,6 @@ from comintern.schemas import Conversation, Message
 
 
 class ConversationRepository:
-    """Conversations with the assistant and their messages."""
-
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 

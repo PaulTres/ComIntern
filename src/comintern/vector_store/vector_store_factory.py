@@ -22,8 +22,6 @@ logger = logging.getLogger(__name__)
 
 
 class VectorStoreFactory:
-    """Builds the vector store the settings name."""
-
     @staticmethod
     def create_vector_store(
         embeddings: Embeddings, vector_store_settings: VectorStoreSettings

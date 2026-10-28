@@ -1,0 +1,22 @@
+# The company behind the demo login that `comintern-seed` creates (DEMO_ACCOUNT__* in .env).
+# The answers use the question ids and option values of questionnaire.yaml.
+name: Demo Software SRL
+profile:
+  countries: [RO, DE]
+  b2c: false
+  employees: 120
+  employees_de: 30
+  turnover_m: 25
+  balance_sheet_m: 18
+  sector: ict_services
+  processes_personal_data: true
+  special_category_data: false
+  dp_staff_count: 25
+  ai_usage: uses
+  ai_high_risk: false
+  financial_entity: false
+  ict_provider_to_finance: true
+  listed: false
+  aml_obliged: false
+  non_eu_supply_chain: false
+  high_risk_goods_ro: false

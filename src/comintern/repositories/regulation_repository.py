@@ -12,8 +12,6 @@ from comintern.schemas import (
 
 
 class RegulationRepository:
-    """Regulations, requirements and a company's applicable regulations and statuses."""
-
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 

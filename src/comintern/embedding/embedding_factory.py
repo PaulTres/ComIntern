@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class EmbeddingFactory:
-    """Builds the embedding model the settings name."""
-
     @staticmethod
     def create_embedding(embedding_settings: EmbeddingsSettings) -> Embeddings:
         """

@@ -14,8 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class LLMFactory:
-    """Builds the chat model the settings name."""
-
     @staticmethod
     def create_chat_model(llm_settings: LLMSettings) -> BaseChatModel:
         """

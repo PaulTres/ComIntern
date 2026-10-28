@@ -8,23 +8,23 @@ export const STATUS_LABEL: Record<Status, string> = {
 };
 
 export const LEVEL_TEXT: Record<Level, string> = {
-  green: "text-emerald-600",
-  amber: "text-amber-600",
-  red: "text-rose-600",
+  green: "text-green-ink",
+  amber: "text-orange-ink",
+  red: "text-red-ink",
   none: "text-muted-foreground",
 };
 
 export const LEVEL_BG: Record<Level, string> = {
-  green: "bg-emerald-500",
-  amber: "bg-amber-500",
-  red: "bg-rose-500",
+  green: "bg-green",
+  amber: "bg-orange",
+  red: "bg-red",
   none: "bg-muted-foreground/30",
 };
 
 export const LEVEL_STROKE: Record<Level, string> = {
-  green: "stroke-emerald-500",
-  amber: "stroke-amber-500",
-  red: "stroke-rose-500",
+  green: "stroke-green",
+  amber: "stroke-orange",
+  red: "stroke-red",
   none: "stroke-muted-foreground/30",
 };
 

@@ -5,8 +5,6 @@ from comintern.models.chat import Audience
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class KnowledgeAgentContext:
-    """One knowledge-agent turn."""
-
     question: str
     company_id: int
     conversation_id: int

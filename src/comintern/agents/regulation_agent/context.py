@@ -7,8 +7,6 @@ from comintern.models.knowledge import ConversationTurn
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class RegulationAgentContext:
-    """One regulation-agent turn."""
-
     question: str
     company_id: int
     regulation_code: str | None

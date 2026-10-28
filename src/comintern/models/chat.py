@@ -15,8 +15,6 @@ class AgentName(StrEnum):
 
 
 class MessageRole(StrEnum):
-    """Who wrote a stored message."""
-
     USER = "user"
     ASSISTANT = "assistant"
 

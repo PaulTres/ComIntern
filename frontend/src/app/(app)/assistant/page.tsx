@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Bot, FileText, Loader2, Plus, Send, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUp, FileText, MessageCircle, SquarePen } from "lucide-react";
 
 import { PageHeader } from "@/components/app-shell";
+import { Select } from "@/components/controls";
+import { IconTile, Row } from "@/components/list";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { type ChatSource, streamChat } from "@/lib/api";
 import type { RegulationSummary } from "@/lib/types";
 import { useApi } from "@/lib/use-api";
@@ -19,10 +20,10 @@ interface Message {
 }
 
 const AUDIENCES = [
-  { value: "", label: "Plain language" },
-  { value: "management", label: "For management" },
+  { value: "", label: "Plain Language" },
+  { value: "management", label: "For Management" },
   { value: "it", label: "For IT" },
-  { value: "legal", label: "For legal" },
+  { value: "legal", label: "For Legal" },
 ];
 
 const EXAMPLES = [
@@ -31,8 +32,15 @@ const EXAMPLES = [
   "How do NIS2 and GDPR overlap on incident reporting?",
 ];
 
-const SELECT_CLASS =
-  "h-9 rounded-lg border bg-card px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
+function TypingIndicator() {
+  return (
+    <span className="flex h-5 items-center gap-1" aria-hidden>
+      {[0, 150, 300].map((delay) => (
+        <span key={delay} className="size-2 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: `${delay}ms` }} />
+      ))}
+    </span>
+  );
+}
 
 export default function AssistantPage() {
   const { data: regulations } = useApi<RegulationSummary[]>("/company/regulations");
@@ -42,11 +50,16 @@ export default function AssistantPage() {
   const [conversationId, setConversationId] = useState<number | null>(null);
   const [regulation, setRegulation] = useState("");
   const [audience, setAudience] = useState("");
+  const end = useRef<HTMLDivElement>(null);
 
   // The regulation pages link here with ?regulation=CODE to talk to that regulation's agent.
   useEffect(() => {
     setRegulation(new URLSearchParams(window.location.search).get("regulation") ?? "");
   }, []);
+
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+  }, [messages.length]);
 
   const updateAnswer = (update: (answer: Message) => Message) =>
     setMessages((current) => [...current.slice(0, -1), update(current[current.length - 1])]);
@@ -92,131 +105,131 @@ export default function AssistantPage() {
     setConversationId(null);
   }
 
+  const agentName = regulations?.find((r) => r.code === regulation)?.short_name;
+
   return (
     <>
       <PageHeader
-        title="Compliance assistant"
-        description="Ask what a regulation says, or what your company should do next. Answers come from the regulation catalog, the official texts and your uploaded evidence."
-        action={
-          <div className="flex flex-wrap gap-2">
-            <select
-              value={regulation}
-              onChange={(e) => setRegulation(e.target.value)}
-              className={SELECT_CLASS}
-              aria-label="Regulation agent"
-            >
-              <option value="">All regulations</option>
-              {regulations?.map((r) => (
-                <option key={r.code} value={r.code}>
-                  {r.short_name} agent
-                </option>
-              ))}
-            </select>
-            <select
-              value={audience}
-              onChange={(e) => setAudience(e.target.value)}
-              className={SELECT_CLASS}
-              aria-label="Write the answer for"
-            >
-              {AUDIENCES.map((a) => (
-                <option key={a.value} value={a.value}>
-                  {a.label}
-                </option>
-              ))}
-            </select>
-            <Button variant="outline" onClick={startNewConversation} disabled={busy || messages.length === 0}>
-              <Plus /> New conversation
-            </Button>
-          </div>
-        }
+        title="Assistant"
+        description="Answers come from the regulation catalog, the official texts and your evidence."
       />
-      <div className="flex min-h-[28rem] flex-col rounded-xl border bg-card">
-        <div className="flex flex-1 flex-col gap-4 p-5">
+
+      <div className="mb-3 flex items-start gap-2">
+        <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+        <Select
+          label="Agent"
+          value={regulation}
+          onChange={setRegulation}
+          options={[
+            { value: "", label: "All Regulations" },
+            ...(regulations ?? []).map((r) => ({ value: r.code, label: `${r.short_name} Agent` })),
+          ]}
+        />
+        <Select label="Write the answer for" value={audience} onChange={setAudience} options={AUDIENCES} />
+        </div>
+        <Button
+          variant="gray"
+          size="icon"
+          onClick={startNewConversation}
+          disabled={busy || messages.length === 0}
+          aria-label="New conversation"
+          title="New conversation"
+        >
+          <SquarePen className="size-[18px]" />
+        </Button>
+      </div>
+
+      <div className="flex min-h-[calc(100dvh-22rem)] flex-col rounded-xl bg-card lg:min-h-[calc(100dvh-20rem)]">
+        <div className="flex flex-1 flex-col gap-1.5 p-4" aria-live="polite">
           {messages.length === 0 ? (
-            <div className="m-auto max-w-md text-center">
-              <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Sparkles className="size-5" />
-              </span>
-              <p className="mt-4 text-sm text-muted-foreground">
-                Pick a regulation above to talk to its agent, which knows your checklist and evidence. The answers
-                are guidance from a local model, not legal advice.
+            <div className="m-auto flex w-full max-w-md flex-col items-center py-6 text-center">
+              <IconTile icon={MessageCircle} className="size-14 rounded-[14px] bg-teal [&_svg]:size-7" />
+              <h2 className="mt-4 text-[22px] font-bold tracking-tight">
+                {agentName ? `Ask the ${agentName} agent` : "Ask about your compliance"}
+              </h2>
+              <p className="mt-1.5 text-[15px] text-muted-foreground">
+                {agentName
+                  ? "It knows this regulation, your checklist and your evidence."
+                  : "Choose a regulation's agent above for answers about your own checklist."}
               </p>
-              <div className="mt-5 flex flex-col gap-2">
+              <div className="mt-6 w-full overflow-hidden rounded-xl bg-muted/60 text-left">
                 {EXAMPLES.map((example) => (
-                  <button
-                    key={example}
-                    onClick={() => ask(example)}
-                    className="rounded-lg border px-3 py-2 text-left text-sm hover:border-primary/40 hover:bg-primary/5"
-                  >
-                    {example}
-                  </button>
+                  <Row key={example} onClick={() => ask(example)}>
+                    <span className="text-[15px] text-primary">{example}</span>
+                  </Row>
                 ))}
               </div>
+              <p className="mt-4 text-[12px] text-tertiary-foreground">
+                Answers come from a model running on this computer. They are guidance, not legal advice.
+              </p>
             </div>
           ) : (
-            messages.map((message, i) => (
-              <div key={i} className={cn("flex gap-3", message.role === "user" && "flex-row-reverse")}>
-                {message.role === "assistant" && (
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Bot className="size-4" />
-                  </span>
-                )}
-                <div className="flex max-w-[80%] flex-col gap-2">
-                  {message.role === "assistant" && !message.text && message.progress && (
-                    <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="size-4 animate-spin" /> {message.progress}
-                    </p>
-                  )}
-                  {message.text && (
-                    <p
-                      className={cn(
-                        "whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm",
-                        message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
-                      )}
-                    >
-                      {message.text}
-                    </p>
+            messages.map((message, i) => {
+              const mine = message.role === "user";
+              const previousSameSide = messages[i - 1]?.role === message.role;
+              return (
+                <div key={i} className={cn("flex max-w-[85%] flex-col gap-1 sm:max-w-[75%]", mine ? "self-end items-end" : "self-start items-start", !previousSameSide && i > 0 && "mt-3")}>
+                  <div
+                    className={cn(
+                      "rounded-[18px] px-3.5 py-2 text-[17px] leading-snug whitespace-pre-wrap sm:text-[15px]",
+                      mine ? "bg-primary text-white" : "bg-bubble",
+                    )}
+                  >
+                    {message.text || <TypingIndicator />}
+                  </div>
+                  {!mine && message.progress && !message.text && (
+                    <p className="px-1 text-[12px] text-muted-foreground">{message.progress}</p>
                   )}
                   {message.sources && message.sources.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1 px-1">
                       {message.sources.map((source) => (
-                        <span
-                          key={source.title}
-                          className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
-                        >
+                        <span key={source.title} className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
                           <FileText className="size-3" /> {source.title}
                         </span>
                       ))}
                     </div>
                   )}
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
+          <div ref={end} />
         </div>
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
             ask(input);
           }}
-          className="flex gap-2 border-t p-3"
+          className="sticky bottom-[calc(env(safe-area-inset-bottom)+51px)] flex items-end gap-2 rounded-b-xl border-t bg-card/90 p-2.5 backdrop-blur-xl lg:bottom-0"
         >
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                ask(input);
-              }
-            }}
-            placeholder="Ask about your compliance…"
-            className="min-h-10 resize-none"
-            rows={1}
-          />
-          <Button type="submit" size="icon-lg" disabled={busy || !input.trim()} aria-label="Send">
-            <Send />
-          </Button>
+          <label htmlFor="question" className="sr-only">
+            Your question
+          </label>
+          <div className="flex min-w-0 flex-1 items-end rounded-[20px] border border-foreground/15 bg-card pr-1 focus-within:border-primary/60">
+            <textarea
+              id="question"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  ask(input);
+                }
+              }}
+              placeholder={agentName ? `Message the ${agentName} agent` : "Message"}
+              rows={1}
+              className="field-sizing-content max-h-40 min-h-9 min-w-0 flex-1 resize-none bg-transparent px-3.5 py-[7px] text-[17px] leading-snug outline-none placeholder:text-tertiary-foreground sm:text-[15px] sm:py-2"
+            />
+            <button
+              type="submit"
+              disabled={busy || !input.trim()}
+              aria-label="Send"
+              className="mb-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-opacity disabled:opacity-30"
+            >
+              <ArrowUp className="size-4" strokeWidth={3} />
+            </button>
+          </div>
         </form>
       </div>
     </>

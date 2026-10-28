@@ -19,8 +19,6 @@ from comintern.models.providers import (
 
 
 class DatabaseSettings(BaseModel):
-    """PostgreSQL connection."""
-
     url: str = Field(
         description="Async SQLAlchemy URL, e.g. postgresql+asyncpg://user:password@host:5432/name"
     )
@@ -33,8 +31,6 @@ class DatabaseSettings(BaseModel):
 
 
 class LoggingSettings(BaseModel):
-    """Logging."""
-
     level: str = Field(
         default="INFO",
         description="Python logging level: DEBUG, INFO, WARNING or ERROR.",
@@ -57,8 +53,6 @@ class CorsSettings(BaseModel):
 
 
 class JWTSettings(BaseModel):
-    """Access tokens."""
-
     secret_key: str = Field(
         min_length=32, description="Signs the access tokens; keep it secret."
     )
@@ -124,8 +118,6 @@ class VectorStoreSettings(BaseModel):
 
 
 class EmbeddingsSettings(BaseModel):
-    """Embedding model."""
-
     provider: Literal[EmbeddingsProvider.FASTEMBED] = EmbeddingsProvider.FASTEMBED
     model_name: str = Field(
         description="FastEmbed model; it must cover English, German and Romanian."
@@ -141,8 +133,6 @@ class EmbeddingsSettings(BaseModel):
 
 
 class LLMSettings(BaseModel):
-    """Chat model."""
-
     provider: Literal[LLMProvider.OLLAMA] = LLMProvider.OLLAMA
     model_name: str = Field(
         description="Ollama model, e.g. gemma4:12b; it must support tool calling."
@@ -165,16 +155,12 @@ class LLMSettings(BaseModel):
 
 
 class OrchestratorAgentSettings(BaseModel):
-    """Orchestrator agent."""
-
     max_recursion_limit: PositiveInt = Field(
         default=8, description="Most graph steps the orchestrator may take."
     )
 
 
 class KnowledgeAgentSettings(BaseModel):
-    """Knowledge agent."""
-
     max_recursion_limit: PositiveInt = Field(
         default=12, description="Most steps the retrieval agent may take."
     )
@@ -191,8 +177,6 @@ class KnowledgeAgentSettings(BaseModel):
 
 
 class RegulationAgentSettings(BaseModel):
-    """Regulation agent."""
-
     top_k: PositiveInt = Field(
         default=4, description="Passages of the regulation's texts added to the answer."
     )
@@ -204,9 +188,24 @@ class RegulationAgentSettings(BaseModel):
     )
 
 
-class Settings(BaseSettings):
-    """All settings of the application."""
+class DemoAccountSettings(BaseModel):
+    """The login `comintern-seed` creates, so everyone can try the app with the same account."""
 
+    enabled: bool = Field(
+        default=True,
+        description="Create the demo account when seeding; turn it off outside a local machine.",
+    )
+    email: str = Field(
+        default="demo@comintern-demo.eu", description="Email of the demo user."
+    )
+    password: str = Field(
+        default="comintern-demo",
+        min_length=8,
+        description="Password of the demo user; it is public, so local use only.",
+    )
+
+
+class Settings(BaseSettings):
     database: DatabaseSettings
     logging: LoggingSettings = LoggingSettings()
     run: RunAppSettings = RunAppSettings()
@@ -220,6 +219,7 @@ class Settings(BaseSettings):
     orchestrator_agent: OrchestratorAgentSettings = OrchestratorAgentSettings()
     knowledge_agent: KnowledgeAgentSettings = KnowledgeAgentSettings()
     regulation_agent: RegulationAgentSettings = RegulationAgentSettings()
+    demo_account: DemoAccountSettings = DemoAccountSettings()
 
     model_config = SettingsConfigDict(
         env_file=".env",
