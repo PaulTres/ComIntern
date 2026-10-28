@@ -269,8 +269,9 @@ https://legislatie.just.ro. Then index them:
 - Option A: `docker compose up` again (the `seed` service reads `regulation_texts/` on every start).
 - Option B: `uv run comintern-seed`.
 
-Seeding replaces the passages of every file, so running it again is safe. Check each site's reuse terms
-before committing a downloaded file; the EUR-Lex texts may be reused.
+Seeding replaces the passages of every file, so running it again is safe. Git ignores the downloaded files
+(`regulation_texts/*/`), so every colleague downloads their own;
+[FIRST_RUN.md](FIRST_RUN.md#6-optional-download-the-official-regulation-texts) has the direct links.
 
 ## Using the app
 

@@ -16,5 +16,6 @@ whose `seed` service runs on every start). Seeding replaces the passages of ever
 it again is safe.
 
 Download the texts from the official sources linked in each regulation's `source_url` (EUR-Lex,
-gesetze-im-internet.de, legislatie.just.ro) and check each site's reuse terms before committing a file.
+gesetze-im-internet.de, legislatie.just.ro); `FIRST_RUN.md` lists the direct links. Git ignores the
+folders here, so everyone downloads their own copies.
 Until a regulation has texts here, the assistant answers from the ComIntern catalog only.

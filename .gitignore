@@ -18,6 +18,9 @@ node_modules/
 !.env.example
 .envrc
 
+# Official regulation texts: everyone downloads their own (FIRST_RUN.md); regulation_texts/README.md stays
+regulation_texts/*/
+
 # Local data and model caches
 data/
 .cache/

@@ -92,6 +92,56 @@ values come from `DEMO_ACCOUNT__*` in `.env`; the password is public, so set
 | Qdrant dashboard | http://localhost:6333/dashboard |
 | Database client | `localhost:5432`, database, user and password all `comintern` |
 
+## 6. Optional: download the official regulation texts
+
+The assistant works without them, answering from the ComIntern catalog. With them it can quote the
+law itself. Save each file at the path in the last column (paths start at the repository folder,
+`ComIntern/`); the folder name must be the regulation code, the file name can be anything ending in
+`.pdf`, `.docx`, `.txt` or `.md`.
+
+**EU** (English, EUR-Lex): the link opens the PDF; save it.
+
+| Regulation | Download | Save as |
+|---|---|---|
+| GDPR, Regulation (EU) 2016/679 | [PDF](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016R0679) | `ComIntern/regulation_texts/EU_GDPR/gdpr_2016_679.pdf` |
+| NIS2, Directive (EU) 2022/2555 | [PDF](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32022L2555) | `ComIntern/regulation_texts/EU_NIS2/nis2_2022_2555.pdf` |
+| AI Act, Regulation (EU) 2024/1689 | [PDF](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32024R1689) | `ComIntern/regulation_texts/EU_AI_ACT/ai_act_2024_1689.pdf` |
+| DORA, Regulation (EU) 2022/2554 | [PDF](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32022R2554) | `ComIntern/regulation_texts/EU_DORA/dora_2022_2554.pdf` |
+| CSRD, Directive (EU) 2022/2464 | [PDF](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32022L2464) | `ComIntern/regulation_texts/EU_CSRD/csrd_2022_2464.pdf` |
+| CSDDD, Directive (EU) 2024/1760 | [PDF](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32024L1760) | `ComIntern/regulation_texts/EU_CSDDD/csddd_2024_1760.pdf` |
+| Whistleblowing, Directive (EU) 2019/1937 | [PDF](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32019L1937) | `ComIntern/regulation_texts/EU_WHISTLEBLOWING/whistleblowing_2019_1937.pdf` |
+| AML, Regulation (EU) 2024/1624 | [PDF](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32024R1624) | `ComIntern/regulation_texts/EU_AML/amlr_2024_1624.pdf` |
+
+**Germany** (German, gesetze-im-internet.de): the link is the PDF.
+
+| Regulation | Download | Save as |
+|---|---|---|
+| BDSG | [PDF](https://www.gesetze-im-internet.de/bdsg_2018/BDSG.pdf) | `ComIntern/regulation_texts/DE_BDSG/BDSG.pdf` |
+| NIS2 (DE), BSI-Gesetz 2025 | [PDF](https://www.gesetze-im-internet.de/bsig_2025/BSIG.pdf) | `ComIntern/regulation_texts/DE_NIS2_BSIG/BSIG.pdf` |
+| LkSG | [PDF](https://www.gesetze-im-internet.de/lksg/LkSG.pdf) | `ComIntern/regulation_texts/DE_LKSG/LkSG.pdf` |
+| HinSchG | [PDF](https://www.gesetze-im-internet.de/hinschg/HinSchG.pdf) | `ComIntern/regulation_texts/DE_HINSCHG/HinSchG.pdf` |
+| GwG | [PDF](https://www.gesetze-im-internet.de/gwg_2017/GwG.pdf) | `ComIntern/regulation_texts/DE_GWG/GwG.pdf` |
+
+**Romania** (Romanian, legislatie.just.ro): the portal has no PDF button. Open the page, click
+**Forma printabilă**, then print it with **Save as PDF** (Cmd+P on macOS, Ctrl+P on Windows).
+
+| Regulation | Page | Save as |
+|---|---|---|
+| Law 190/2018 (GDPR measures) | [Legea 190/2018](https://legislatie.just.ro/Public/DetaliiDocumentAfis/203151) | `ComIntern/regulation_texts/RO_LAW_190_2018/legea_190_2018.pdf` |
+| NIS2 (RO), OUG 155/2024 | [OUG 155/2024](https://legislatie.just.ro/Public/DetaliiDocumentAfis/293121) | `ComIntern/regulation_texts/RO_NIS2/oug_155_2024.pdf` |
+| Law 361/2022 (whistleblowers) | [Legea 361/2022](https://legislatie.just.ro/Public/DetaliiDocumentAfis/265820) | `ComIntern/regulation_texts/RO_LAW_361_2022/legea_361_2022.pdf` |
+| Law 129/2019 (anti-money laundering), updated form | [Legea 129/2019](https://legislatie.just.ro/Public/DetaliiDocumentAfis/305272) | `ComIntern/regulation_texts/RO_LAW_129_2019/legea_129_2019.pdf` |
+| RO e-Factura, OUG 120/2021, updated form | [OUG 120/2021](https://legislatie.just.ro/Public/DetaliiDocumentAfis/310662) | `ComIntern/regulation_texts/RO_EFACTURA/oug_120_2021.pdf` |
+
+Then index them; nothing else changes:
+
+- Option A: `docker compose up` (the `seed` service reads `regulation_texts/` on every start).
+- Option B: `uv run comintern-seed`.
+
+The seed log names every file it indexed (`Indexed N passages of source=...`). Laws change: download
+a text again when it is amended, then seed again. Git ignores these files (`regulation_texts/*/` in
+`.gitignore`), so every colleague downloads their own copies.
+
 ## After the first run
 
 | Option | Every later start |
