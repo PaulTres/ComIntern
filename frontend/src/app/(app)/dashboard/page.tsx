@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, FileText, Loader2 } from "lucide-react";
+import { ClipboardList, FileText } from "lucide-react";
 
 import { PageHeader } from "@/components/app-shell";
-import { JurisdictionBadge, StatusBadge } from "@/components/badges";
+import { StatusBadge } from "@/components/badges";
+import { EmptyState, IconTile, Loading, Row, RowText, Section, SeeAll } from "@/components/list";
 import { LevelLabel, ScoreBar, ScoreRing } from "@/components/score";
-import { EmptyState, SectionCard } from "@/components/section-card";
 import { StatusBreakdown } from "@/components/status-breakdown";
 import { buttonVariants } from "@/components/ui/button";
 import { UpdateItem } from "@/components/update-item";
@@ -18,24 +18,23 @@ export default function DashboardPage() {
   const { data, error } = useApi<Dashboard>("/dashboard");
 
   if (error) return <EmptyState>Could not load the dashboard: {error.message}</EmptyState>;
-  if (!data)
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+  if (!data) return <Loading />;
 
   if (!data.assessed)
     return (
-      <div className="mx-auto max-w-lg py-20 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome to ComIntern</h1>
-        <p className="mt-2 text-muted-foreground">
-          Answer a few questions about {data.company_name} to find out which regulations apply to you.
-        </p>
-        <Link href="/onboarding" className={`${buttonVariants()} mt-6 h-10 px-4`}>
-          Start assessment <ArrowRight />
-        </Link>
-      </div>
+      <>
+        <PageHeader title={data.company_name} />
+        <div className="mx-auto flex max-w-md flex-col items-center rounded-2xl bg-card px-6 py-12 text-center">
+          <IconTile icon={ClipboardList} className="size-14 rounded-[14px] [&_svg]:size-7" />
+          <h2 className="mt-5 text-[22px] font-bold tracking-tight">Start your assessment</h2>
+          <p className="mt-2 text-[15px] text-muted-foreground">
+            Answer a few questions about {data.company_name} to find out which regulations apply to you.
+          </p>
+          <Link href="/onboarding" className={buttonVariants({ size: "lg", className: "mt-6" })}>
+            Start Assessment
+          </Link>
+        </div>
+      </>
     );
 
   const { totals } = data;
@@ -43,109 +42,84 @@ export default function DashboardPage() {
 
   return (
     <>
-      <PageHeader title={`Good to see you, ${data.company_name}`} description="Your compliance readiness at a glance." />
+      <PageHeader title={data.company_name} description="Your compliance readiness at a glance." />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <section className="flex flex-col items-center gap-6 rounded-xl border bg-card p-6 sm:flex-row lg:col-span-2">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3">
+        <Section title="Readiness" className="lg:col-span-2">
+          <div className="flex flex-col items-center gap-6 p-6 sm:flex-row">
           <ScoreRing score={data.overall_score} level={data.level} />
           <div className="flex-1 text-center sm:text-left">
-            <p className="text-sm text-muted-foreground">Overall compliance score</p>
-            <p className="mt-1 text-lg font-medium text-balance">
-              {totals.compliant} of {applicable} applicable requirements are met across {data.regulations.length}{" "}
-              regulations.
+            <p className="text-[22px] leading-snug font-bold tracking-tight text-balance">
+              {totals.compliant} of {applicable} requirements met across {data.regulations.length} regulations
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {totals.evidenced} requirement{totals.evidenced === 1 ? " has" : "s have"} supporting evidence uploaded.
-              Scores weight each requirement by importance; &ldquo;in progress&rdquo; counts half.
+            <p className="mt-2 text-[15px] text-muted-foreground">
+              {totals.evidenced} {totals.evidenced === 1 ? "requirement has" : "requirements have"} evidence. Each
+              requirement counts by its priority; one in progress counts half.
             </p>
           </div>
-        </section>
+          </div>
+        </Section>
 
-        <SectionCard title="Requirement status">
+        <Section title="Status">
           <StatusBreakdown score={totals} />
-        </SectionCard>
-      </div>
+        </Section>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <SectionCard title="Regulations" href="/regulations" className="lg:col-span-2">
-          <ul className="-mx-2 flex flex-col">
-            {data.regulations.map((r) => (
-              <li key={r.code}>
-                <Link
-                  href={`/regulations/${r.code}`}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-lg px-2 py-3 hover:bg-muted/60 sm:grid-cols-[minmax(0,14rem)_1fr]"
-                >
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span className="truncate text-sm font-medium">{r.short_name}</span>
-                    <JurisdictionBadge code={r.jurisdiction} />
-                  </div>
-                  <LevelLabel level={r.score.level} className="justify-self-end sm:hidden" />
-                  <ScoreBar score={r.score.score} level={r.score.level} className="col-span-2 sm:col-span-1" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </SectionCard>
+        <Section title="Regulations" action={<SeeAll href="/regulations" />} className="lg:col-span-2">
+          {data.regulations.map((r) => (
+            <Row key={r.code} href={`/regulations/${r.code}`}>
+              <RowText
+                title={<span className="font-semibold">{r.short_name}</span>}
+                subtitle={<LevelLabel level={r.score.level} />}
+                className="sm:max-w-56"
+              />
+              <ScoreBar score={r.score.score} level={r.score.level} className="ml-auto w-28 sm:w-auto sm:flex-1" />
+            </Row>
+          ))}
+        </Section>
 
-        <SectionCard title="Regulatory updates" href="/updates">
+        <Section title="Updates" action={<SeeAll href="/updates" />}>
           {data.updates.length ? (
-            <div className="flex flex-col gap-5">
-              {data.updates.map((u) => (
-                <UpdateItem key={u.id} update={u} compact />
-              ))}
-            </div>
+            data.updates.map((u) => (
+              <Row key={u.id} href="/updates" chevron={false} className="py-3">
+                <UpdateItem update={u} compact />
+              </Row>
+            ))
           ) : (
-            <EmptyState>No updates for your regulations.</EmptyState>
+            <p className="px-4 py-8 text-center text-[15px] text-muted-foreground">No updates for your regulations.</p>
           )}
-        </SectionCard>
-      </div>
+        </Section>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <SectionCard title="Next steps" href="/regulations" linkLabel="All requirements">
+        <Section title="Next Steps" className="lg:col-span-2">
           {data.open_tasks.length ? (
-            <ul className="-mx-2 flex flex-col">
-              {data.open_tasks.map((t) => (
-                <li key={t.requirement_id}>
-                  <Link
-                    href={`/regulations/${t.regulation_code}#req-${t.requirement_id}`}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-muted/60"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm">{t.title}</p>
-                      <p className="text-xs text-muted-foreground">{t.regulation_short_name}</p>
-                    </div>
-                    <StatusBadge status={t.status} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            data.open_tasks.map((t) => (
+              <Row key={t.requirement_id} href={`/regulations/${t.regulation_code}#req-${t.requirement_id}`}>
+                <RowText title={t.title} subtitle={t.regulation_short_name} />
+                <StatusBadge status={t.status} />
+              </Row>
+            ))
           ) : (
-            <EmptyState>All requirements are handled. Great work!</EmptyState>
+            <p className="px-4 py-8 text-center text-[15px] text-muted-foreground">
+              Every requirement is handled. Well done.
+            </p>
           )}
-        </SectionCard>
+        </Section>
 
-        <SectionCard title="Recent evidence" href="/documents">
+        <Section title="Recent Evidence" action={<SeeAll href="/documents" />}>
           {data.recent_documents.length ? (
-            <ul className="flex flex-col gap-3">
-              {data.recent_documents.map((d) => (
-                <li key={d.id} className="flex items-center gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <FileText className="size-4 text-muted-foreground" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm">{d.filename}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {d.regulation_short_name ? `${d.regulation_short_name} · ${d.requirement_title}` : "Unassigned"}
-                    </p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{formatDate(d.uploaded_at)}</span>
-                </li>
-              ))}
-            </ul>
+            data.recent_documents.map((d) => (
+              <Row key={d.id} icon={<IconTile icon={FileText} className="bg-[#8e8e93]" />}>
+                <RowText
+                  title={d.filename}
+                  subtitle={d.regulation_short_name ? `${d.regulation_short_name} · ${formatDate(d.uploaded_at)}` : formatDate(d.uploaded_at)}
+                />
+              </Row>
+            ))
           ) : (
-            <EmptyState>Upload documents on a regulation&rsquo;s page to prove compliance.</EmptyState>
+            <p className="px-4 py-8 text-center text-[15px] text-muted-foreground">
+              Add documents on a regulation&rsquo;s page to prove each requirement.
+            </p>
           )}
-        </SectionCard>
+        </Section>
       </div>
     </>
   );

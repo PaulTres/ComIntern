@@ -7,7 +7,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
       {children}
-      <Toaster position="bottom-right" />
+      <Toaster position="top-center" />
     </AuthProvider>
   );
 }

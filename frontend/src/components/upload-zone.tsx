@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Loader2, UploadCloud } from "lucide-react";
+import { Loader2, Plus, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { api } from "@/lib/api";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 const ACCEPT = ".pdf,.docx,.doc,.xlsx,.xls,.pptx,.txt,.md,.csv,.png,.jpg,.jpeg";
 
+/** Click or drop files to upload them; with a requirement id they become its evidence. */
 export function UploadZone({
   requirementId,
   onUploaded,
@@ -43,11 +44,10 @@ export function UploadZone({
   }
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
+      disabled={busy}
       onClick={() => input.current?.click()}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && input.current?.click()}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -59,17 +59,31 @@ export function UploadZone({
         upload(e.dataTransfer.files);
       }}
       className={cn(
-        "flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground transition-colors outline-none hover:border-primary/50 hover:bg-primary/5 focus-visible:ring-3 focus-visible:ring-ring/50",
-        compact ? "px-3 py-3" : "flex-col px-6 py-10",
+        "flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-foreground/12 text-[15px] text-muted-foreground transition-colors outline-none hover:border-primary/40 hover:bg-primary/[0.03] focus-visible:ring-3 focus-visible:ring-ring/50",
+        compact ? "min-h-11 px-4 py-2.5" : "flex-col bg-card px-6 py-10",
         dragging && "border-primary bg-primary/5",
       )}
     >
       <input ref={input} type="file" multiple accept={ACCEPT} className="hidden" onChange={(e) => upload(e.target.files)} />
-      {busy ? <Loader2 className="size-5 animate-spin" /> : <UploadCloud className={compact ? "size-4" : "size-6"} />}
+      {busy ? (
+        <Loader2 className="size-5 animate-spin" />
+      ) : compact ? (
+        <Plus className="size-4 text-primary" />
+      ) : (
+        <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Upload className="size-5" />
+        </span>
+      )}
       <span>
-        <span className="font-medium text-foreground">Click to upload</span> or drag evidence here
+        {compact ? (
+          <span className="text-primary">Add evidence</span>
+        ) : (
+          <>
+            Drop files here or <span className="text-primary">choose files</span>
+          </>
+        )}
       </span>
-      {!compact && <span className="text-xs">PDF, Word, Excel, PowerPoint, images · max 25 MB</span>}
-    </div>
+      {!compact && <span className="text-[13px] text-tertiary-foreground">PDF, Word, Excel, PowerPoint, text or images, up to 25 MB</span>}
+    </button>
   );
 }

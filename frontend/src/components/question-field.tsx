@@ -2,42 +2,22 @@
 
 import { Check } from "lucide-react";
 
+import { SegmentedControl } from "@/components/controls";
 import { Input } from "@/components/ui/input";
 import type { Question } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-function OptionCard({
-  selected,
-  onClick,
-  children,
-  indicator = "check",
-}: {
-  selected: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  indicator?: "check" | "radio";
-}) {
+/** A list row that shows a blue checkmark when chosen, as in iOS pickers. */
+function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={cn(
-        "flex w-full items-center gap-3 rounded-xl border bg-card px-4 py-3 text-left text-sm transition-all outline-none hover:border-primary/40 focus-visible:ring-3 focus-visible:ring-ring/50",
-        selected && "border-primary bg-primary/5 ring-1 ring-primary",
-      )}
+      className="relative flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-[17px] transition-colors outline-none not-first:before:absolute not-first:before:top-0 not-first:before:right-0 not-first:before:left-4 not-first:before:h-px not-first:before:bg-border hover:bg-foreground/[0.03] focus-visible:bg-foreground/[0.05] active:bg-foreground/[0.08] sm:text-[15px]"
     >
-      <span
-        className={cn(
-          "flex size-5 shrink-0 items-center justify-center border transition-colors",
-          indicator === "radio" ? "rounded-full" : "rounded-md",
-          selected ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background",
-        )}
-      >
-        {selected &&
-          (indicator === "radio" ? <span className="size-2 rounded-full bg-primary-foreground" /> : <Check className="size-3.5" />)}
-      </span>
       <span className="flex-1">{children}</span>
+      <Check className={cn("size-5 shrink-0 text-primary", !selected && "invisible")} strokeWidth={2.5} />
     </button>
   );
 }
@@ -52,21 +32,24 @@ export function QuestionField({
   onChange: (value: unknown) => void;
 }) {
   const label = (
-    <p className="mb-3 text-sm font-medium">
-      {question.label}
-      {question.required && <span className="ml-0.5 text-primary">*</span>}
-    </p>
+    <div className="mb-2 flex items-baseline justify-between gap-4 px-1">
+      <p className="text-[17px] font-semibold">{question.label}</p>
+      {question.type === "multi_select" && <span className="shrink-0 text-[13px] text-muted-foreground">Select all that apply</span>}
+      {!question.required && question.type !== "multi_select" && (
+        <span className="shrink-0 text-[13px] text-muted-foreground">Optional</span>
+      )}
+    </div>
   );
 
   switch (question.type) {
     case "multi_select": {
       const selected = (value as string[] | undefined) ?? [];
       return (
-        <div>
+        <div role="group" aria-label={question.label}>
           {label}
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="overflow-hidden rounded-xl bg-card">
             {question.options!.map((o) => (
-              <OptionCard
+              <Choice
                 key={o.value}
                 selected={selected.includes(o.value)}
                 onClick={() =>
@@ -74,7 +57,7 @@ export function QuestionField({
                 }
               >
                 {o.label}
-              </OptionCard>
+              </Choice>
             ))}
           </div>
         </div>
@@ -82,13 +65,13 @@ export function QuestionField({
     }
     case "single_select":
       return (
-        <div>
+        <div role="group" aria-label={question.label}>
           {label}
-          <div className={cn("grid gap-2", question.options!.length > 6 ? "sm:grid-cols-2" : "")}>
+          <div className="overflow-hidden rounded-xl bg-card">
             {question.options!.map((o) => (
-              <OptionCard key={o.value} indicator="radio" selected={value === o.value} onClick={() => onChange(o.value)}>
+              <Choice key={o.value} selected={value === o.value} onClick={() => onChange(o.value)}>
                 {o.label}
-              </OptionCard>
+              </Choice>
             ))}
           </div>
         </div>
@@ -97,13 +80,16 @@ export function QuestionField({
       return (
         <div>
           {label}
-          <div className="grid grid-cols-2 gap-2 sm:max-w-xs">
-            {[true, false].map((v) => (
-              <OptionCard key={String(v)} indicator="radio" selected={value === v} onClick={() => onChange(v)}>
-                {v ? "Yes" : "No"}
-              </OptionCard>
-            ))}
-          </div>
+          <SegmentedControl
+            label={question.label}
+            options={[
+              { value: true, label: "Yes" },
+              { value: false, label: "No" },
+            ]}
+            value={value as boolean | undefined}
+            onChange={onChange}
+            className="sm:max-w-xs [&_button]:py-2 [&_button]:text-[15px]"
+          />
         </div>
       );
     case "number":
@@ -120,7 +106,7 @@ export function QuestionField({
             step="any"
             value={value === undefined || value === null ? "" : String(value)}
             onChange={(e) => onChange(e.target.value === "" ? undefined : Number(e.target.value))}
-            className="h-11 max-w-xs text-base"
+            className="bg-card sm:max-w-xs"
           />
         </div>
       );

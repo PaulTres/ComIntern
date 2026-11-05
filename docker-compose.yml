@@ -1,21 +1,159 @@
+# The whole ComIntern stack: docker compose up --build
+#   frontend http://localhost:3000, API http://localhost:8000/docs
+# Ollama is not in here: run it natively (ollama serve), so it can use your GPU; the containers
+# reach it at host.docker.internal. Values come from .env when it exists, else the defaults below.
+name: comintern
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+# Containers talk to each other by service name, so these override the localhost URLs of .env.
+x-api-environment: &api-environment
+  DATABASE__URL: postgresql+asyncpg://${DATABASE__USER:-comintern}:${DATABASE__PASSWORD:-comintern}@db:5432/${DATABASE__NAME:-comintern}
+  JWT__SECRET_KEY: ${JWT__SECRET_KEY:-local-docker-secret-change-me-before-sharing-it}
+  VECTOR_STORE__URL: http://qdrant:6333
+  VECTOR_STORE__COLLECTION_NAME: ${VECTOR_STORE__COLLECTION_NAME:-comintern}
+  EMBEDDINGS__MODEL_NAME: ${EMBEDDINGS__MODEL_NAME:-sentence-transformers/paraphrase-multilingual-mpnet-base-v2}
+  EMBEDDINGS__SIZE: ${EMBEDDINGS__SIZE:-768}
+  EMBEDDINGS__CACHE_DIRECTORY: /opt/models/fastembed
+  LLM__MODEL_NAME: ${LLM__MODEL_NAME:-gemma4:12b}
+  LLM__BASE_URL: ${DOCKER_OLLAMA_URL:-http://host.docker.internal:11434}
+  DOCUMENTS__UPLOAD_DIRECTORY: /app/data/uploads
+  DOCUMENTS__REGULATION_TEXTS_DIRECTORY: /app/regulation_texts
+  RUN__HOST: 0.0.0.0
+  RUN__PORT: "8000"
+  TZ: ${TZ:-Europe/Bucharest}
+
+x-api: &api
+  image: comintern-api:latest
+  build:
+    context: .
+    dockerfile: Dockerfile
+  env_file:
+    - path: .env
+      required: false
+  environment: *api-environment
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  logging: *default-logging
+
 services:
-  backend:
-    build: ./backend
-    ports: ["8000:8000"]
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      COMINTERN_JWT_SECRET: ${COMINTERN_JWT_SECRET:-change-me-to-a-long-random-secret-value}
-      COMINTERN_DATABASE_URL: sqlite:////data/comintern.db
-      COMINTERN_UPLOAD_DIR: /data/uploads
+      POSTGRES_USER: ${DATABASE__USER:-comintern}
+      POSTGRES_PASSWORD: ${DATABASE__PASSWORD:-comintern}
+      POSTGRES_DB: ${DATABASE__NAME:-comintern}
     volumes:
-      - comintern-data:/data
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE__USER:-comintern} -d ${DATABASE__NAME:-comintern}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    logging: *default-logging
+
+  qdrant:
+    image: qdrant/qdrant:v1.19.0
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    logging: *default-logging
+
+  # Creates the collection once; the API only connects to an existing one.
+  qdrant-init:
+    image: curlimages/curl:8.11.1
+    restart: "no"
+    depends_on:
+      qdrant:
+        condition: service_started
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      COLLECTION: ${VECTOR_STORE__COLLECTION_NAME:-comintern}
+      SIZE: ${EMBEDDINGS__SIZE:-768}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        attempt=0
+        until curl -fsS "$$QDRANT_URL/readyz" >/dev/null 2>&1; do
+          attempt=$$((attempt + 1))
+          if [ "$$attempt" -gt 60 ]; then echo "qdrant never became ready"; exit 1; fi
+          sleep 2
+        done
+        curl -fs -X PUT "$$QDRANT_URL/collections/$$COLLECTION" \
+          -H 'Content-Type: application/json' \
+          -d "{\"vectors\":{\"size\":$$SIZE,\"distance\":\"Cosine\"}}" \
+          >/dev/null && echo "created $$COLLECTION" || echo "$$COLLECTION already exists"
+        curl -fsS "$$QDRANT_URL/collections/$$COLLECTION" >/dev/null
+        echo "collection $$COLLECTION ready"
+    logging: *default-logging
+
+  migrate:
+    <<: *api
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["alembic", "upgrade", "head"]
+
+  # Loads the YAML catalog into PostgreSQL and indexes it and regulation_texts/ into Qdrant.
+  # The first run downloads the embedding model (about 1 GB) into the models volume.
+  seed:
+    <<: *api
+    restart: "no"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      qdrant-init:
+        condition: service_completed_successfully
+    command: ["comintern-seed"]
+    volumes:
+      - models:/opt/models
+      - ./regulation_texts:/app/regulation_texts:ro
+
+  api:
+    <<: *api
+    restart: unless-stopped
+    init: true
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    volumes:
+      - uploads:/app/data/uploads
+      - models:/opt/models
+      - ./regulation_texts:/app/regulation_texts:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+      start_interval: 5s
+    stop_grace_period: 30s
 
   frontend:
     build:
       context: ./frontend
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:8000
-    ports: ["3000:3000"]
-    depends_on: [backend]
+        NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
+    logging: *default-logging
 
 volumes:
-  comintern-data:
+  pgdata:
+  qdrant_data:
+  models:
+  uploads:
